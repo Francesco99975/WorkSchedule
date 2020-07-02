@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_schedule/db/database_provider.dart';
 import '../models/employee.dart';
 
 class EmployeeList extends StatelessWidget {
@@ -23,7 +24,12 @@ class EmployeeList extends StatelessWidget {
                 color: Colors.red,
               ),
               onPressed: () {
-                _removeEmp(index);
+                DatabaseProvider.db
+                    .deleteEmployee(_empList[index].id)
+                    .then((value) {
+                  print("Removed $value rows");
+                  _removeEmp(index);
+                });
               },
             ),
           ),

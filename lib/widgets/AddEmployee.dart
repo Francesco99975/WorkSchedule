@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_schedule/db/database_provider.dart';
 import 'package:work_schedule/models/employee.dart';
 import '../util/string_extension.dart';
 
@@ -41,8 +42,14 @@ class _AddEmployeeState extends State<AddEmployee> {
               RaisedButton(
                 onPressed: () {
                   if (_fnCtrl.text.isNotEmpty && _lnCtrl.text.isNotEmpty) {
-                    widget._addEmp(Employee(
-                        _fnCtrl.text.capitalize(), _lnCtrl.text.capitalize()));
+                    Employee newEmp = Employee(
+                        firstName: _fnCtrl.text.capitalize(),
+                        lastName: _lnCtrl.text.capitalize());
+
+                    DatabaseProvider.db
+                        .insertEmployee(newEmp)
+                        .then((emp) => widget._addEmp(emp));
+
                     Navigator.of(context).pop();
                   }
                 },

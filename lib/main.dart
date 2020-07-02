@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:work_schedule/widgets/AddEmployee.dart';
+import './db/database_provider.dart';
+import './widgets/AddEmployee.dart';
 import './widgets/EmployeeList.dart';
 import './models/employee.dart';
 
@@ -42,6 +43,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     super.initState();
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
+    DatabaseProvider.db.getEmployees().then((empList) {
+      setState(() {
+        empList.forEach((emp) {
+          _employees.add(emp);
+        });
+      });
+    });
   }
 
   @override
