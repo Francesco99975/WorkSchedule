@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:time_machine/time_machine.dart';
+import './widgets/ScheduleWeekView.dart';
 import './db/database_provider.dart';
 import './widgets/AddEmployee.dart';
 import './widgets/EmployeeList.dart';
 import './models/employee.dart';
 
-main(List<String> args) {
+void main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await TimeMachine.initialize({'rootBundle': rootBundle});
   runApp(WorkScheduleApp());
 }
 
@@ -12,8 +17,14 @@ class WorkScheduleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Home(),
-    );
+        home: Home(),
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          primaryColor: Colors.amber,
+          snackBarTheme: SnackBarThemeData(
+            behavior: SnackBarBehavior.floating,
+          ),
+        ));
   }
 }
 
@@ -85,10 +96,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             controller: _tabController,
             tabs: <Widget>[
               Tab(
-                icon: Icon(Icons.people),
+                icon: Icon(Icons.schedule),
               ),
               Tab(
-                icon: Icon(Icons.schedule),
+                icon: Icon(Icons.people),
               )
             ],
           ),
@@ -97,6 +108,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           child: TabBarView(
             controller: _tabController,
             children: <Widget>[
+              ScheduleWeekView(),
               _employees.length > 0
                   ? EmployeeList(_employees, _removeEmployee)
                   : Center(
@@ -106,7 +118,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                     ),
-              Text("Schedule")
             ],
           ),
         ),
@@ -118,12 +129,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget _bottomButton(Function fn, BuildContext context) {
     return _tabController.index == 0
         ? FloatingActionButton(
-            onPressed: () => fn(context),
-            child: Icon(Icons.add),
-          )
-        : FloatingActionButton(
             onPressed: () {},
             child: Icon(Icons.edit),
+          )
+        : FloatingActionButton(
+            onPressed: () => fn(context),
+            child: Icon(Icons.add),
           );
   }
 }

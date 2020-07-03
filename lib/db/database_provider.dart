@@ -4,10 +4,10 @@ import 'package:path/path.dart';
 import '../models/employee.dart';
 
 class DatabaseProvider {
-  static final String TABLE_EMPLOYEES = "employees";
-  static final String COLUMN_ID = "id";
-  static final String COLUMN_FIRST_NAME = "first_name";
-  static final String COLUMN_LAST_NAME = "last_name";
+  static const String TABLE_EMPLOYEES = "employees";
+  static const String COLUMN_ID = "id";
+  static const String COLUMN_FIRST_NAME = "first_name";
+  static const String COLUMN_LAST_NAME = "last_name";
 
   DatabaseProvider._();
   static final DatabaseProvider db = DatabaseProvider._();
