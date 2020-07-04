@@ -8,6 +8,8 @@ class DatabaseProvider {
   static const String COLUMN_ID = "id";
   static const String COLUMN_FIRST_NAME = "first_name";
   static const String COLUMN_LAST_NAME = "last_name";
+  static const String COLUMN_COLOR = "color";
+  static const String COLUMN_HOURS = "hours";
 
   DatabaseProvider._();
   static final DatabaseProvider db = DatabaseProvider._();
@@ -27,13 +29,15 @@ class DatabaseProvider {
 
     return await openDatabase(
       join(dbPath, "employees.db"),
-      version: 1,
+      version: 2,
       onCreate: (Database database, int version) async {
         print("Creating emp table");
         await database.execute("CREATE TABLE $TABLE_EMPLOYEES ("
             "$COLUMN_ID INTEGER PRIMARY KEY,"
             "$COLUMN_FIRST_NAME TEXT NOT NULL,"
-            "$COLUMN_LAST_NAME TEXT NOT NULL);");
+            "$COLUMN_LAST_NAME TEXT NOT NULL,"
+            "$COLUMN_COLOR INTEGER NOT NULL,"
+            "$COLUMN_HOURS REAL DEFAULT 0);");
       },
     );
   }
@@ -41,8 +45,13 @@ class DatabaseProvider {
   Future<List<Employee>> getEmployees() async {
     final db = await database;
 
-    var employees = await db.query(TABLE_EMPLOYEES,
-        columns: [COLUMN_ID, COLUMN_FIRST_NAME, COLUMN_LAST_NAME]);
+    var employees = await db.query(TABLE_EMPLOYEES, columns: [
+      COLUMN_ID,
+      COLUMN_FIRST_NAME,
+      COLUMN_LAST_NAME,
+      COLUMN_COLOR,
+      COLUMN_HOURS
+    ]);
     List<Employee> empList = List<Employee>();
 
     employees.forEach((emp) {

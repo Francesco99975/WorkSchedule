@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:time_machine/time_machine.dart';
+import 'package:timetable/timetable.dart';
+import 'dart:async';
 import './widgets/ScheduleWeekView.dart';
 import './db/database_provider.dart';
 import './widgets/AddEmployee.dart';
@@ -9,6 +11,8 @@ import './models/employee.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
   await TimeMachine.initialize({'rootBundle': rootBundle});
   runApp(WorkScheduleApp());
 }
@@ -36,6 +40,21 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   TabController _tabController;
   final List<Employee> _employees = [];
+
+  static final _eventController = StreamController<List<BasicEvent>>()..add([]);
+  static final _eventProvider =
+      EventProvider.simpleStream(_eventController.stream);
+
+  final _controller = TimetableController(
+    eventProvider: _eventProvider,
+    initialTimeRange: InitialTimeRange.range(
+      startTime: LocalTime(7, 0, 0),
+      endTime: LocalTime(20, 0, 0),
+    ),
+    initialDate: LocalDate.today(),
+    visibleRange: VisibleRange.week(),
+    firstDayOfWeek: DayOfWeek.monday,
+  );
 
   void _addEmployee(Employee emp) {
     setState(() {
@@ -86,6 +105,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         });
   }
 
+  void _addScheduleEvent(List<BasicEvent> events) {
+    _eventController.add(events);
+  }
+
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
@@ -108,7 +131,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           child: TabBarView(
             controller: _tabController,
             children: <Widget>[
-              ScheduleWeekView(),
+              ScheduleWeekView(_controller),
               _employees.length > 0
                   ? EmployeeList(_employees, _removeEmployee)
                   : Center(
@@ -121,20 +144,29 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-        floatingActionButton: _bottomButton(_startAddNewEmployee, context),
+        floatingActionButton:
+            _bottomButton([_startAddNewEmployee, _addScheduleEvent], context),
       ),
     );
   }
 
-  Widget _bottomButton(Function fn, BuildContext context) {
+  Widget _bottomButton(List<Function> fn, BuildContext context) {
     return _tabController.index == 0
         ? FloatingActionButton(
             onPressed: () {},
             child: Icon(Icons.edit),
           )
         : FloatingActionButton(
-            onPressed: () => fn(context),
+            onPressed: () => fn[0](context),
             child: Icon(Icons.add),
           );
+  }
+
+  @override
+  void deactivate() {
+    super.dispose();
+    super.deactivate();
+    _eventController.close();
+    _eventProvider.dispose();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:work_schedule/db/database_provider.dart';
 import 'package:work_schedule/models/employee.dart';
 import '../util/string_extension.dart';
@@ -14,8 +15,10 @@ class AddEmployee extends StatefulWidget {
 
 class _AddEmployeeState extends State<AddEmployee> {
   final _fnCtrl = TextEditingController();
-
   final _lnCtrl = TextEditingController();
+  Color _currentColor = Colors.tealAccent;
+
+  void changeColor(Color color) => setState(() => _currentColor = color);
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +43,37 @@ class _AddEmployeeState extends State<AddEmployee> {
                 controller: _lnCtrl,
               ),
               RaisedButton(
+                elevation: 3.0,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Select a color'),
+                        content: SingleChildScrollView(
+                          child: BlockPicker(
+                            pickerColor: _currentColor,
+                            onColorChanged: changeColor,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: const Text('Color'),
+                color: _currentColor,
+                textColor: useWhiteForeground(_currentColor)
+                    ? const Color(0xffffffff)
+                    : const Color(0xff000000),
+              ),
+              RaisedButton(
                 onPressed: () {
                   if (_fnCtrl.text.isNotEmpty && _lnCtrl.text.isNotEmpty) {
                     Employee newEmp = Employee(
                         firstName: _fnCtrl.text.capitalize(),
-                        lastName: _lnCtrl.text.capitalize());
+                        lastName: _lnCtrl.text.capitalize(),
+                        color: _currentColor.value,
+                        hours: 0);
 
                     DatabaseProvider.db
                         .insertEmployee(newEmp)

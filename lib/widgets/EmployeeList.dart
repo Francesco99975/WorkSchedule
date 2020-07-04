@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:work_schedule/db/database_provider.dart';
 import '../models/employee.dart';
 
@@ -16,6 +17,18 @@ class EmployeeList extends StatelessWidget {
         return Card(
           elevation: 3,
           child: ListTile(
+            leading: CircleAvatar(
+              radius: 30,
+              backgroundColor: Color(_empList[index].color),
+              child: Text(
+                "${_empList[index].hours}H",
+                style: TextStyle(
+                    color: useWhiteForeground(Color(_empList[index].color))
+                        ? const Color(0xffffffff)
+                        : const Color(0xff000000),
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
             title: Text(_empList[index].firstName),
             subtitle: Text(_empList[index].lastName),
             trailing: IconButton(
