@@ -94,8 +94,8 @@ class _ScheduleCompilerState extends State<ScheduleCompiler> {
                               widget._employees[index], _selectedDate),
                         ))
                             .then((value) {
-                          if (value != null) {
-                            Shift newShift = value as Shift;
+                          if (value != null && value is Shift) {
+                            Shift newShift = value;
                             setState(() {
                               bool isDayOccupied =
                                   widget._employees[index].shifts.any((sh) =>
@@ -109,30 +109,19 @@ class _ScheduleCompilerState extends State<ScheduleCompiler> {
                                 widget._employees[index].shifts.replaceRange(
                                     oldIndex, oldIndex + 1, [newShift]);
                               }
-
-                              DatabaseProvider.db
-                                  .updateEmployee(widget._employees[index].id,
-                                      widget._employees[index])
-                                  .then((value) {
-                                print(value);
-                                // widget._addEvents([
-                                //   BasicEvent(
-                                //       id: widget._employees[index].id +
-                                //           Random().nextInt(99999),
-                                //       color:
-                                //           Color(widget._employees[index].color),
-                                //       title:
-                                //           widget._employees[index].firstName +
-                                //               " " +
-                                //               widget._employees[index].lastName,
-                                //       start: LocalDateTime.dateTime(
-                                //           newShift.start.toLocal()),
-                                //       end: LocalDateTime.dateTime(
-                                //           newShift.end.toLocal()))
-                                // ]);
-                              });
                             });
+                          } else {
+                            if (value is DateTime)
+                              setState(() {
+                                widget._employees[index].shifts.removeWhere(
+                                    (sh) => compareDates(sh.start, value));
+                              });
                           }
+
+                          DatabaseProvider.db
+                              .updateEmployee(widget._employees[index].id,
+                                  widget._employees[index])
+                              .then((value) => print(value));
                         }),
                       ),
                     ));

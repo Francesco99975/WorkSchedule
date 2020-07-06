@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:intl/intl.dart';
 import 'package:work_schedule/db/database_provider.dart';
 import '../models/employee.dart';
 
@@ -21,7 +22,9 @@ class EmployeeList extends StatelessWidget {
               radius: 30,
               backgroundColor: Color(_empList[index].color),
               child: Text(
-                "${_empList[index].hours}H",
+                NumberFormat('##0.##', 'en_US')
+                        .format(_empList[index].getWeekHours()) +
+                    "H",
                 style: TextStyle(
                     color: useWhiteForeground(Color(_empList[index].color))
                         ? const Color(0xffffffff)

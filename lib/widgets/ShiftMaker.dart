@@ -183,6 +183,26 @@ class _ShiftMakerState extends State<ShiftMaker> {
                 },
               ),
             ],
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Center(
+            child: RaisedButton(
+              child: Text(
+                "OFF WORK",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              color: Colors.amber,
+              textColor: Colors.black,
+              onPressed: () {
+                setState(() {
+                  _start = null;
+                  _end = null;
+                });
+                Navigator.of(context).pop(widget._date);
+              },
+            ),
           )
         ],
       ),

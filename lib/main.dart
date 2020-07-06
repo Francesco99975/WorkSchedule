@@ -87,8 +87,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 id: emp.id + Random().nextInt(99999),
                 color: Color(emp.color),
                 title: emp.firstName + " " + emp.lastName,
-                start: LocalDateTime.dateTime(shift.start),
-                end: LocalDateTime.dateTime(shift.end)));
+                start: LocalDate(
+                        shift.start.year, shift.start.month, shift.start.day)
+                    .at(LocalTime(shift.start.hour, shift.start.minute,
+                        shift.start.second)),
+                end: LocalDate(shift.end.year, shift.end.month, shift.end.day)
+                    .at(LocalTime(
+                        shift.end.hour, shift.end.minute, shift.end.second))));
           });
         });
 
@@ -175,8 +180,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         id: emp.id + Random().nextInt(99999),
                         color: Color(emp.color),
                         title: emp.firstName + " " + emp.lastName,
-                        start: LocalDateTime.dateTime(shift.start),
-                        end: LocalDateTime.dateTime(shift.end)));
+                        start: LocalDate(shift.start.year, shift.start.month,
+                                shift.start.day)
+                            .at(LocalTime(shift.start.hour, shift.start.minute,
+                                shift.start.second)),
+                        end: LocalDate(
+                                shift.end.year, shift.end.month, shift.end.day)
+                            .at(LocalTime(shift.end.hour, shift.end.minute,
+                                shift.end.second))));
                   });
                 });
                 _eventController.add(events);
