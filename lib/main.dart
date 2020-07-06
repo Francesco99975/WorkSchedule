@@ -232,11 +232,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
+    double totWeekHours =
+        _employees.fold(0.0, (prev, emp) => prev + emp.getWeekHours());
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Work Schedule"),
+          title: Text("Work Schedule - Tot: " +
+              NumberFormat('##0.##', 'en_US').format(totWeekHours) +
+              "H"),
           bottom: TabBar(
             controller: _tabController,
             tabs: <Widget>[
