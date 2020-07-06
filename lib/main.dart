@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -53,6 +54,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   static final _eventController = StreamController<List<BasicEvent>>()..add([]);
   static final _eventProvider =
       EventProvider.simpleStream(_eventController.stream);
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   final _controller = TimetableController(
     eventProvider: _eventProvider,
@@ -238,6 +241,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           title: Text("Work Schedule - Tot: " +
               NumberFormat('##0.##', 'en_US').format(totWeekHours) +
@@ -316,10 +320,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 onPressed: () {
                   savePdf(createPDF()).then((value) {
                     print("Pdf Created");
-                    // final snack = SnackBar(
-                    //   content: Text("Pdf Created"),
-                    // );
-                    // Scaffold.of(context).showSnackBar(snack);
+                    Flushbar(
+                      message: "PDF Created!",
+                      flushbarPosition: FlushbarPosition.TOP,
+                      isDismissible: true,
+                      duration: Duration(seconds: 3),
+                    ).show(context);
                   }).catchError(
                       (error) => print("Pdf Error: " + error.toString()));
                 },
