@@ -68,10 +68,11 @@ class _AddEmployeeState extends State<AddEmployee> {
               ),
               RaisedButton(
                 onPressed: () {
-                  if (_fnCtrl.text.isNotEmpty && _lnCtrl.text.isNotEmpty) {
+                  if (_fnCtrl.text.trim().isNotEmpty &&
+                      _lnCtrl.text.trim().isNotEmpty) {
                     Employee newEmp = Employee(
-                        firstName: _fnCtrl.text.capitalize(),
-                        lastName: _lnCtrl.text.capitalize(),
+                        firstName: _fnCtrl.text.trim().capitalize(),
+                        lastName: _lnCtrl.text.trim().capitalize(),
                         color: _currentColor.value,
                         hours: 0);
 

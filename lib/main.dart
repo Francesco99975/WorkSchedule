@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
@@ -11,6 +13,10 @@ import './db/database_provider.dart';
 import './widgets/AddEmployee.dart';
 import './widgets/EmployeeList.dart';
 import './models/employee.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+import 'models/shift.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +87,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       setState(() {
         empList.forEach((emp) {
           _employees.add(emp);
-          print(emp.firstName + "---" + "${emp.shifts}");
+          // print(emp.firstName + "---" + "${emp.shifts}");
           emp.shifts.forEach((shift) {
             events.add(BasicEvent(
                 id: emp.id + Random().nextInt(99999),
@@ -123,6 +129,106 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             behavior: HitTestBehavior.opaque,
           );
         });
+  }
+
+  bool compareDates(DateTime a, DateTime b) {
+    if (a == null || b == null) return false;
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  bool thisWeek(DateTime a) {
+    var now = DateTime.now();
+    int startWeek = now.subtract(Duration(days: now.weekday - 1)).day;
+    int endWeek = now.add(Duration(days: 7 - now.weekday)).day;
+    // print("$startWeek - $endWeek / ${a.day}");
+    return now.year == a.year &&
+        now.month == a.month &&
+        a.day >= startWeek &&
+        a.day <= endWeek;
+  }
+
+  List<DateTime> getCurrentWeek() {
+    List<DateTime> week = [];
+
+    DateTime now = DateTime.now();
+    DateTime startWeek = now.subtract(Duration(days: now.weekday - 1));
+
+    for (var i = 0; i < 7; ++i) {
+      week.add(startWeek.add(Duration(days: i)));
+    }
+
+    return week;
+  }
+
+  pw.Document createPDF() {
+    var pdf = pw.Document();
+
+    pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: pw.EdgeInsets.all(32),
+      build: (context) {
+        return pw.Table(
+            border: pw.TableBorder(color: PdfColor.fromInt(0)),
+            children: [
+              pw.TableRow(children: [
+                pw.Text("Deli",
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold))
+              ], verticalAlignment: pw.TableCellVerticalAlignment.middle),
+              pw.TableRow(children: [
+                pw.Text("Employee",
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                ...getCurrentWeek().map((e) {
+                  return pw.Text(DateFormat("E d/MM").format(e),
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      textAlign: pw.TextAlign.center);
+                })
+              ]),
+              ..._employees.map((emp) {
+                return pw.TableRow(children: [
+                  pw.Text("${emp.lastName}, ${emp.firstName}"),
+                  ...getCurrentWeek().map((day) {
+                    Shift sh;
+                    var index = 0;
+                    try {
+                      sh = emp.shifts
+                          .where((sh) => thisWeek(sh.start))
+                          .toList()[index];
+                      ++index;
+                    } catch (_) {
+                      sh = null;
+                    }
+                    return compareDates(sh != null ? sh.start : null, day)
+                        ? pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.center,
+                            mainAxisAlignment: pw.MainAxisAlignment.center,
+                            children: [
+                                pw.Text(
+                                    DateFormat.Hm().format(sh.start.toLocal()) +
+                                        " - "),
+                                pw.Text(
+                                    DateFormat.Hm().format(sh.end.toLocal())),
+                              ])
+                        : pw.Text("");
+                  }).toList()
+                ]);
+              }).toList()
+            ]);
+      },
+    ));
+
+    return pdf;
+  }
+
+  Future savePdf(pw.Document pdf) async {
+    Directory appDocDir = await getExternalStorageDirectory();
+    String appDocPath = appDocDir.path;
+    DateTime startWeek = getCurrentWeek()[0];
+
+    print(appDocPath);
+
+    File file = File(
+        "$appDocPath/deli-schedule_${startWeek.day}${startWeek.month}${startWeek.year}.pdf");
+    await file.writeAsBytes(pdf.save());
   }
 
   Widget build(BuildContext context) {
@@ -167,33 +273,58 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   Widget _bottomButton(List<Function> fn, BuildContext context) {
     return _tabController.index == 0
-        ? FloatingActionButton(
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(
-                    builder: (context) => ScheduleCompiler(_employees)))
-                .then((_) {
-              setState(() {
-                List<BasicEvent> events = [];
-                _employees.forEach((emp) {
-                  emp.shifts.forEach((shift) {
-                    events.add(BasicEvent(
-                        id: emp.id + Random().nextInt(99999),
-                        color: Color(emp.color),
-                        title: emp.firstName + " " + emp.lastName,
-                        start: LocalDate(shift.start.year, shift.start.month,
-                                shift.start.day)
-                            .at(LocalTime(shift.start.hour, shift.start.minute,
-                                shift.start.second)),
-                        end: LocalDate(
-                                shift.end.year, shift.end.month, shift.end.day)
-                            .at(LocalTime(shift.end.hour, shift.end.minute,
-                                shift.end.second))));
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              FloatingActionButton(
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(
+                        builder: (context) => ScheduleCompiler(_employees)))
+                    .then((_) {
+                  setState(() {
+                    List<BasicEvent> events = [];
+                    _employees.forEach((emp) {
+                      emp.shifts.forEach((shift) {
+                        events.add(BasicEvent(
+                            id: emp.id + Random().nextInt(99999),
+                            color: Color(emp.color),
+                            title: emp.firstName + " " + emp.lastName,
+                            start: LocalDate(shift.start.year,
+                                    shift.start.month, shift.start.day)
+                                .at(LocalTime(shift.start.hour,
+                                    shift.start.minute, shift.start.second)),
+                            end: LocalDate(shift.end.year, shift.end.month,
+                                    shift.end.day)
+                                .at(LocalTime(shift.end.hour, shift.end.minute,
+                                    shift.end.second))));
+                      });
+                    });
+                    _eventController.add(events);
                   });
-                });
-                _eventController.add(events);
-              });
-            }),
-            child: Icon(Icons.edit),
+                }),
+                child: Icon(Icons.edit),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  savePdf(createPDF()).then((value) {
+                    print("Pdf Created");
+                    // final snack = SnackBar(
+                    //   content: Text("Pdf Created"),
+                    // );
+                    // Scaffold.of(context).showSnackBar(snack);
+                  }).catchError(
+                      (error) => print("Pdf Error: " + error.toString()));
+                },
+                child: Icon(
+                  Icons.picture_as_pdf,
+                  color: Colors.white,
+                ),
+                backgroundColor: Colors.redAccent[700],
+              )
+            ],
           )
         : FloatingActionButton(
             onPressed: () => fn[0](context),
