@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
-import 'dart:async';
+import './widgets/ScheduleCompiler.dart';
 import './widgets/ScheduleWeekView.dart';
 import './db/database_provider.dart';
 import './widgets/AddEmployee.dart';
@@ -74,10 +77,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
     DatabaseProvider.db.getEmployees().then((empList) {
+      List<BasicEvent> events = [];
       setState(() {
         empList.forEach((emp) {
           _employees.add(emp);
+          print(emp.firstName + "---" + "${emp.shifts}");
+          emp.shifts.forEach((shift) {
+            events.add(BasicEvent(
+                id: emp.id + Random().nextInt(99999),
+                color: Color(emp.color),
+                title: emp.firstName + " " + emp.lastName,
+                start: LocalDateTime.dateTime(shift.start),
+                end: LocalDateTime.dateTime(shift.end)));
+          });
         });
+
+        _eventController.add(events);
       });
     });
   }
@@ -103,10 +118,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             behavior: HitTestBehavior.opaque,
           );
         });
-  }
-
-  void _addScheduleEvent(List<BasicEvent> events) {
-    _eventController.add(events);
   }
 
   Widget build(BuildContext context) {
@@ -144,8 +155,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-        floatingActionButton:
-            _bottomButton([_startAddNewEmployee, _addScheduleEvent], context),
+        floatingActionButton: _bottomButton([_startAddNewEmployee], context),
       ),
     );
   }
@@ -153,7 +163,25 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget _bottomButton(List<Function> fn, BuildContext context) {
     return _tabController.index == 0
         ? FloatingActionButton(
-            onPressed: () {},
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(
+                    builder: (context) => ScheduleCompiler(_employees)))
+                .then((_) {
+              setState(() {
+                List<BasicEvent> events = [];
+                _employees.forEach((emp) {
+                  emp.shifts.forEach((shift) {
+                    events.add(BasicEvent(
+                        id: emp.id + Random().nextInt(99999),
+                        color: Color(emp.color),
+                        title: emp.firstName + " " + emp.lastName,
+                        start: LocalDateTime.dateTime(shift.start),
+                        end: LocalDateTime.dateTime(shift.end)));
+                  });
+                });
+                _eventController.add(events);
+              });
+            }),
             child: Icon(Icons.edit),
           )
         : FloatingActionButton(

@@ -10,6 +10,7 @@ class DatabaseProvider {
   static const String COLUMN_LAST_NAME = "last_name";
   static const String COLUMN_COLOR = "color";
   static const String COLUMN_HOURS = "hours";
+  static const String COLUMN_SHIFTS = "shifts";
 
   DatabaseProvider._();
   static final DatabaseProvider db = DatabaseProvider._();
@@ -29,7 +30,7 @@ class DatabaseProvider {
 
     return await openDatabase(
       join(dbPath, "employees.db"),
-      version: 2,
+      version: 3,
       onCreate: (Database database, int version) async {
         print("Creating emp table");
         await database.execute("CREATE TABLE $TABLE_EMPLOYEES ("
@@ -37,7 +38,8 @@ class DatabaseProvider {
             "$COLUMN_FIRST_NAME TEXT NOT NULL,"
             "$COLUMN_LAST_NAME TEXT NOT NULL,"
             "$COLUMN_COLOR INTEGER NOT NULL,"
-            "$COLUMN_HOURS REAL DEFAULT 0);");
+            "$COLUMN_HOURS REAL DEFAULT 0,"
+            "$COLUMN_SHIFTS TEXT);");
       },
     );
   }
@@ -50,7 +52,8 @@ class DatabaseProvider {
       COLUMN_FIRST_NAME,
       COLUMN_LAST_NAME,
       COLUMN_COLOR,
-      COLUMN_HOURS
+      COLUMN_HOURS,
+      COLUMN_SHIFTS
     ]);
     List<Employee> empList = List<Employee>();
 
@@ -65,6 +68,13 @@ class DatabaseProvider {
     final db = await database;
     emp.id = await db.insert(TABLE_EMPLOYEES, emp.toMap());
     return emp;
+  }
+
+  Future<int> updateEmployee(int id, Employee emp) async {
+    final db = await database;
+
+    return await db.update(TABLE_EMPLOYEES, emp.toMap(),
+        where: "$COLUMN_ID = ?", whereArgs: [id]);
   }
 
   Future<int> deleteEmployee(int id) async {
