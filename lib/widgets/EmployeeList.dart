@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
-import 'package:work_schedule/db/database_provider.dart';
+import '../db/database_provider.dart';
 import '../models/employee.dart';
 
 class EmployeeList extends StatelessWidget {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timetable/timetable.dart';
-import 'package:work_schedule/db/database_provider.dart';
-import 'package:work_schedule/models/shift.dart';
-import 'package:work_schedule/widgets/ShiftMaker.dart';
+import '../db/database_provider.dart';
+import '../models/shift.dart';
+import '../widgets/ShiftMaker.dart';
 import '../models/employee.dart';
 
 class ScheduleCompiler extends StatefulWidget {

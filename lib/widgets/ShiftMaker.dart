@@ -75,15 +75,19 @@ class _ShiftMakerState extends State<ShiftMaker> {
             height: 30,
           ),
           Center(
-            child: Text(
-              widget._emp.firstName +
-                  " " +
-                  widget._emp.lastName +
-                  " @ " +
-                  DateFormat.MMMMEEEEd().format(widget._date),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold, wordSpacing: 1.2),
+            child: FittedBox(
+              child: Text(
+                widget._emp.firstName +
+                    " " +
+                    widget._emp.lastName +
+                    " @ " +
+                    DateFormat.MMMMEEEEd().format(widget._date),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    wordSpacing: 1.2),
+              ),
             ),
           ),
           SizedBox(

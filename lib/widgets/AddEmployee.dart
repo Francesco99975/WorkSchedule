@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:work_schedule/db/database_provider.dart';
-import 'package:work_schedule/models/employee.dart';
+import '../db/database_provider.dart';
+import '../models/employee.dart';
 import '../util/string_extension.dart';
 
 class AddEmployee extends StatefulWidget {
