@@ -7,8 +7,8 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="work_schedule"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Work Schedule"
+        android:icon="@mipmap/workscheduleiconv1">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
