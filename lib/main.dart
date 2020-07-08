@@ -122,6 +122,37 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     setState(() {});
   }
 
+  void _rebuildCalendar() {
+    setState(() {
+      List<BasicEvent> events = [];
+      _employees.forEach((emp) {
+        emp.shifts.forEach((shift) {
+          events.add(BasicEvent(
+              id: emp.id + Random().nextInt(99999),
+              color: Color(emp.color),
+              title: emp.firstName + " " + emp.lastName,
+              start: LocalDate(
+                      shift.start.year, shift.start.month, shift.start.day)
+                  .at(LocalTime(shift.start.hour, shift.start.minute,
+                      shift.start.second)),
+              end: LocalDate(shift.end.year, shift.end.month, shift.end.day).at(
+                  LocalTime(
+                      shift.end.hour, shift.end.minute, shift.end.second))));
+        });
+      });
+      _eventController.add(events);
+    });
+  }
+
+  void _setColorEmp(int index, Color newColor) {
+    setState(() {
+      _employees[index].color = newColor.value;
+      DatabaseProvider.db
+          .updateEmployee(_employees[index].id, _employees[index]);
+    });
+    _rebuildCalendar();
+  }
+
   void _startAddNewEmployee(BuildContext ctx) {
     showModalBottomSheet(
         context: ctx,
@@ -264,7 +295,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             children: <Widget>[
               ScheduleWeekView(_controller),
               _employees.length > 0
-                  ? EmployeeList(_employees, _removeEmployee)
+                  ? EmployeeList(_employees, _removeEmployee, _setColorEmp)
                   : Center(
                       child: Text(
                         "No Employees Registered...",
@@ -286,30 +317,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               FloatingActionButton(
+                heroTag: "btn1",
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(
                         builder: (context) => ScheduleCompiler(_employees)))
                     .then((_) {
-                  setState(() {
-                    List<BasicEvent> events = [];
-                    _employees.forEach((emp) {
-                      emp.shifts.forEach((shift) {
-                        events.add(BasicEvent(
-                            id: emp.id + Random().nextInt(99999),
-                            color: Color(emp.color),
-                            title: emp.firstName + " " + emp.lastName,
-                            start: LocalDate(shift.start.year,
-                                    shift.start.month, shift.start.day)
-                                .at(LocalTime(shift.start.hour,
-                                    shift.start.minute, shift.start.second)),
-                            end: LocalDate(shift.end.year, shift.end.month,
-                                    shift.end.day)
-                                .at(LocalTime(shift.end.hour, shift.end.minute,
-                                    shift.end.second))));
-                      });
-                    });
-                    _eventController.add(events);
-                  });
+                  _rebuildCalendar();
                 }),
                 child: Icon(Icons.edit),
               ),
@@ -317,6 +330,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 height: 20,
               ),
               FloatingActionButton(
+                heroTag: "btn2",
                 onPressed: () {
                   savePdf(createPDF()).then((value) {
                     print("Pdf Created");
