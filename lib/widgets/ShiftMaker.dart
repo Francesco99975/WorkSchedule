@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:work_schedule/models/employee.dart';
 import 'package:work_schedule/models/shift.dart';
+import '../util/date_functions.dart';
 
 class ShiftMaker extends StatefulWidget {
   final Employee _emp;
@@ -37,10 +38,6 @@ class _ShiftMakerState extends State<ShiftMaker> {
   Future<TimeOfDay> selectTime(BuildContext context) async {
     return await showTimePicker(
         context: context, initialTime: TimeOfDay(hour: 7, minute: 0));
-  }
-
-  bool compareDates(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   @override

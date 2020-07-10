@@ -5,6 +5,7 @@ import '../db/database_provider.dart';
 import '../models/shift.dart';
 import '../widgets/ShiftMaker.dart';
 import '../models/employee.dart';
+import '../util/date_functions.dart';
 
 class ScheduleCompiler extends StatefulWidget {
   final List<Employee> _employees;
@@ -32,10 +33,6 @@ class _ScheduleCompilerState extends State<ScheduleCompiler> {
     setState(() {
       _selectedDate = pickedDate;
     });
-  }
-
-  bool compareDates(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   @override

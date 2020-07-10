@@ -2,23 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import '../db/database_provider.dart';
 import '../models/shift.dart';
+import '../util/date_functions.dart';
 
 List<Shift> parseShifts(String enc) {
   var parsedData = jsonDecode(enc) as List;
   return parsedData.map((el) {
     return Shift.fromJson(el);
   }).toList();
-}
-
-bool thisWeek(DateTime a) {
-  var now = DateTime.now();
-  int startWeek = now.subtract(Duration(days: now.weekday - 1)).day;
-  int endWeek = now.add(Duration(days: 7 - now.weekday)).day;
-  // print("$startWeek - $endWeek / ${a.day}");
-  return now.year == a.year &&
-      now.month == a.month &&
-      a.day >= startWeek &&
-      a.day <= endWeek;
 }
 
 class Employee {

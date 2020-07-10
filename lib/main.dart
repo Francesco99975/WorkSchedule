@@ -16,8 +16,8 @@ import './db/database_provider.dart';
 import './widgets/AddEmployee.dart';
 import './widgets/EmployeeList.dart';
 import './models/employee.dart';
-
-import 'models/shift.dart';
+import './models/shift.dart';
+import './util/date_functions.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -113,6 +113,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    _eventController.close();
+    _eventProvider.dispose();
     _tabController.removeListener(_handleTabIndex);
     _tabController.dispose();
     super.dispose();
@@ -163,35 +165,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             behavior: HitTestBehavior.opaque,
           );
         });
-  }
-
-  bool compareDates(DateTime a, DateTime b) {
-    if (a == null || b == null) return false;
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  bool thisWeek(DateTime a) {
-    var now = DateTime.now();
-    int startWeek = now.subtract(Duration(days: now.weekday - 1)).day;
-    int endWeek = now.add(Duration(days: 7 - now.weekday)).day;
-    // print("$startWeek - $endWeek / ${a.day}");
-    return now.year == a.year &&
-        now.month == a.month &&
-        a.day >= startWeek &&
-        a.day <= endWeek;
-  }
-
-  List<DateTime> getCurrentWeek() {
-    List<DateTime> week = [];
-
-    DateTime now = DateTime.now();
-    DateTime startWeek = now.subtract(Duration(days: now.weekday - 1));
-
-    for (var i = 0; i < 7; ++i) {
-      week.add(startWeek.add(Duration(days: i)));
-    }
-
-    return week;
   }
 
   pw.Document createPDF() {
@@ -355,13 +328,5 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             onPressed: () => fn[0](context),
             child: Icon(Icons.add),
           );
-  }
-
-  @override
-  void deactivate() {
-    super.dispose();
-    super.deactivate();
-    _eventController.close();
-    _eventProvider.dispose();
   }
 }
