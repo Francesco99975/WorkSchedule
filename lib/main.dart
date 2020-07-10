@@ -78,6 +78,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     setState(() {
       _employees.removeAt(index);
     });
+    _rebuildCalendar();
   }
 
   @override
