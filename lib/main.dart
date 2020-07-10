@@ -5,7 +5,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
 import 'package:pdf/pdf.dart';
@@ -110,6 +110,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         _eventController.add(events);
       });
     });
+
+    Permission.storage.request();
   }
 
   @override
@@ -175,52 +177,62 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.all(32),
       build: (context) {
-        return pw.Table(
-            border: pw.TableBorder(color: PdfColor.fromInt(0)),
-            children: [
-              pw.TableRow(children: [
-                pw.Text("Deli",
-                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold))
-              ], verticalAlignment: pw.TableCellVerticalAlignment.middle),
-              pw.TableRow(children: [
-                pw.Text("Employee",
-                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                ...getCurrentWeek().map((e) {
-                  return pw.Text(DateFormat("E d/MM").format(e),
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                      textAlign: pw.TextAlign.center);
-                })
-              ]),
-              ..._employees.map((emp) {
-                return pw.TableRow(children: [
-                  pw.Text("${emp.lastName}, ${emp.firstName}"),
-                  ...getCurrentWeek().map((day) {
-                    Shift sh;
-                    var index = 0;
-                    try {
-                      sh = emp.shifts
-                          .where((sh) => thisWeek(sh.start))
-                          .toList()[index];
-                      ++index;
-                    } catch (_) {
-                      sh = null;
-                    }
-                    return compareDates(sh != null ? sh.start : null, day)
-                        ? pw.Column(
-                            crossAxisAlignment: pw.CrossAxisAlignment.center,
-                            mainAxisAlignment: pw.MainAxisAlignment.center,
-                            children: [
-                                pw.Text(
-                                    DateFormat.Hm().format(sh.start.toLocal()) +
-                                        " - "),
-                                pw.Text(
-                                    DateFormat.Hm().format(sh.end.toLocal())),
-                              ])
-                        : pw.Text("");
-                  }).toList()
-                ]);
-              }).toList()
-            ]);
+        return pw.Column(children: [
+          pw.Text(
+            "Deli Schedule: " +
+                DateFormat.yMMMMEEEEd().format(getCurrentWeek()[0]) +
+                " - " +
+                DateFormat.yMMMMEEEEd().format(getCurrentWeek()[6]),
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 26),
+          ),
+          pw.SizedBox(height: 30),
+          pw.Table(
+              border: pw.TableBorder(color: PdfColor.fromInt(0)),
+              children: [
+                pw.TableRow(children: [
+                  pw.Text("Deli",
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold))
+                ], verticalAlignment: pw.TableCellVerticalAlignment.middle),
+                pw.TableRow(children: [
+                  pw.Text("Employee",
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ...getCurrentWeek().map((e) {
+                    return pw.Text(DateFormat("E d/MM").format(e),
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        textAlign: pw.TextAlign.center);
+                  })
+                ]),
+                ..._employees.map((emp) {
+                  return pw.TableRow(children: [
+                    pw.Text("${emp.lastName}, ${emp.firstName}"),
+                    ...getCurrentWeek().map((day) {
+                      Shift sh;
+                      var index = 0;
+                      try {
+                        sh = emp.shifts
+                            .where((sh) => thisWeek(sh.start))
+                            .toList()[index];
+                        ++index;
+                      } catch (_) {
+                        sh = null;
+                      }
+                      return compareDates(sh != null ? sh.start : null, day)
+                          ? pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                              mainAxisAlignment: pw.MainAxisAlignment.center,
+                              children: [
+                                  pw.Text(DateFormat.Hm()
+                                          .format(sh.start.toLocal()) +
+                                      " - "),
+                                  pw.Text(
+                                      DateFormat.Hm().format(sh.end.toLocal())),
+                                ])
+                          : pw.Text("");
+                    }).toList()
+                  ]);
+                }).toList()
+              ])
+        ]);
       },
     ));
 
@@ -228,15 +240,26 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Future savePdf(pw.Document pdf) async {
-    Directory appDocDir = await getExternalStorageDirectory();
-    String appDocPath = appDocDir.path;
-    DateTime startWeek = getCurrentWeek()[0];
+    if (await Permission.storage.request().isGranted) {
+      Directory appDocDir = Directory("/storage/emulated/0");
+      var dirExists = await appDocDir.exists();
+      if (Platform.isAndroid && dirExists) {
+        Directory appStorage = Directory(appDocDir.path + "/work_schedule");
+        var storeExists = await appStorage.exists();
+        if (!storeExists) {
+          await appStorage.create();
+        }
 
-    print(appDocPath);
+        String appDocPath = appStorage.path;
+        DateTime startWeek = getCurrentWeek()[0];
 
-    File file = File(
-        "$appDocPath/deli-schedule_${startWeek.day}${startWeek.month}${startWeek.year}.pdf");
-    await file.writeAsBytes(pdf.save());
+        print(appDocPath);
+
+        File file = File(
+            "$appDocPath/deli-schedule_${startWeek.day}${startWeek.month}${startWeek.year}.pdf");
+        await file.writeAsBytes(pdf.save());
+      }
+    }
   }
 
   Widget build(BuildContext context) {
