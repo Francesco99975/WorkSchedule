@@ -170,7 +170,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         });
   }
 
-  pw.Document createPDF() {
+  pw.Document createPDF(List<DateTime> week, Function checkWeek) {
     var pdf = pw.Document();
 
     pdf.addPage(pw.Page(
@@ -180,9 +180,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         return pw.Column(children: [
           pw.Text(
             "Deli Schedule: " +
-                DateFormat.yMMMMEEEEd().format(getCurrentWeek()[0]) +
+                DateFormat.yMMMMEEEEd().format(week[0]) +
                 " - " +
-                DateFormat.yMMMMEEEEd().format(getCurrentWeek()[6]),
+                DateFormat.yMMMMEEEEd().format(week[6]),
             style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 26),
           ),
           pw.SizedBox(height: 30),
@@ -196,27 +196,37 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 pw.TableRow(children: [
                   pw.Text("Employee",
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ...getCurrentWeek().map((e) {
+                  ...week.map((e) {
                     return pw.Text(DateFormat("E d/MM").format(e),
                         style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                         textAlign: pw.TextAlign.center);
                   })
                 ]),
                 ..._employees.map((emp) {
+                  var index = 0;
+                  var shifts = emp.shifts
+                      .where((sh) => checkWeek(sh.start))
+                      .toList()
+                        ..sort((a, b) => a.start.compareTo(b.start));
+                  print(emp.firstName);
+                  print("Shifts: ${shifts.length}");
                   return pw.TableRow(children: [
                     pw.Text("${emp.lastName}, ${emp.firstName}"),
-                    ...getCurrentWeek().map((day) {
+                    ...week.map((day) {
                       Shift sh;
-                      var index = 0;
                       try {
-                        sh = emp.shifts
-                            .where((sh) => thisWeek(sh.start))
-                            .toList()[index];
-                        ++index;
+                        sh = shifts[index];
+                        print("Index: $index");
+                        print("Day: ${day.weekday}");
+                        if (compareDates(sh.start, day))
+                          index++;
+                        else
+                          sh = null;
                       } catch (_) {
                         sh = null;
                       }
-                      return compareDates(sh != null ? sh.start : null, day)
+                      print(sh);
+                      return sh != null
                           ? pw.Column(
                               crossAxisAlignment: pw.CrossAxisAlignment.center,
                               mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -239,7 +249,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return pdf;
   }
 
-  Future savePdf(pw.Document pdf) async {
+  Future savePdf(pw.Document pdf, DateTime startWeek) async {
     if (await Permission.storage.request().isGranted) {
       Directory appDocDir = Directory("/storage/emulated/0");
       var dirExists = await appDocDir.exists();
@@ -251,7 +261,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         }
 
         String appDocPath = appStorage.path;
-        DateTime startWeek = getCurrentWeek()[0];
 
         print(appDocPath);
 
@@ -326,25 +335,42 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               SizedBox(
                 height: 20,
               ),
-              FloatingActionButton(
-                heroTag: "btn2",
-                onPressed: () {
-                  savePdf(createPDF()).then((value) {
-                    print("Pdf Created");
+              GestureDetector(
+                onLongPress: () {
+                  savePdf(createPDF(getNextWeek(), nextWeek), getNextWeek()[0])
+                      .then((value) {
+                    print("Pdf Created for next week");
                     Flushbar(
-                      message: "PDF Created!",
+                      message: "PDF created for next week!",
                       flushbarPosition: FlushbarPosition.TOP,
                       isDismissible: true,
                       duration: Duration(seconds: 3),
                     ).show(context);
                   }).catchError(
-                      (error) => print("Pdf Error: " + error.toString()));
+                          (error) => print("Pdf Error: " + error.toString()));
                 },
-                child: Icon(
-                  Icons.picture_as_pdf,
-                  color: Colors.white,
+                child: FloatingActionButton(
+                  heroTag: "btn2",
+                  onPressed: () {
+                    savePdf(createPDF(getCurrentWeek(), thisWeek),
+                            getCurrentWeek()[0])
+                        .then((value) {
+                      print("Pdf Created for this week");
+                      Flushbar(
+                        message: "PDF created for this week!",
+                        flushbarPosition: FlushbarPosition.TOP,
+                        isDismissible: true,
+                        duration: Duration(seconds: 3),
+                      ).show(context);
+                    }).catchError(
+                            (error) => print("Pdf Error: " + error.toString()));
+                  },
+                  child: Icon(
+                    Icons.picture_as_pdf,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: Colors.redAccent[700],
                 ),
-                backgroundColor: Colors.redAccent[700],
               )
             ],
           )

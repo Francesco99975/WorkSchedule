@@ -14,10 +14,34 @@ bool thisWeek(DateTime a) {
       a.day <= endWeek;
 }
 
+bool nextWeek(DateTime a) {
+  var now = DateTime.now().add(Duration(days: 7));
+  int startWeek = now.subtract(Duration(days: now.weekday - 1)).day;
+  int endWeek = now.add(Duration(days: 7 - now.weekday)).day;
+  // print("$startWeek - $endWeek / ${a.day}");
+  return now.year == a.year &&
+      now.month == a.month &&
+      a.day >= startWeek &&
+      a.day <= endWeek;
+}
+
 List<DateTime> getCurrentWeek() {
   List<DateTime> week = [];
 
   DateTime now = DateTime.now();
+  DateTime startWeek = now.subtract(Duration(days: now.weekday - 1));
+
+  for (var i = 0; i < 7; ++i) {
+    week.add(startWeek.add(Duration(days: i)));
+  }
+
+  return week;
+}
+
+List<DateTime> getNextWeek() {
+  List<DateTime> week = [];
+
+  DateTime now = DateTime.now().add(Duration(days: 7));
   DateTime startWeek = now.subtract(Duration(days: now.weekday - 1));
 
   for (var i = 0; i < 7; ++i) {
