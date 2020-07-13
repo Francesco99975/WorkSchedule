@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timetable/timetable.dart';
+import 'package:work_schedule/util/settings.dart';
 import '../db/database_provider.dart';
 import '../models/shift.dart';
 import '../widgets/ShiftMaker.dart';
@@ -16,7 +17,7 @@ class ScheduleCompiler extends StatefulWidget {
 }
 
 class _ScheduleCompilerState extends State<ScheduleCompiler> {
-  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDate = getNextWeek()[0];
   TimeOfDay startTime;
   TimeOfDay endTime;
   List<BasicEvent> eventsPayload = [];
@@ -24,7 +25,7 @@ class _ScheduleCompilerState extends State<ScheduleCompiler> {
   void _presentDatePicker(BuildContext ctx) async {
     final pickedDate = await showDatePicker(
         context: ctx,
-        initialDate: DateTime.now(),
+        initialDate: _selectedDate,
         firstDate: DateTime(2020),
         lastDate: DateTime(2090));
 
@@ -37,6 +38,7 @@ class _ScheduleCompilerState extends State<ScheduleCompiler> {
 
   @override
   Widget build(BuildContext context) {
+    DateFormat df = settings['H24'] ? DateFormat.Hm() : DateFormat.jm();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -77,9 +79,9 @@ class _ScheduleCompilerState extends State<ScheduleCompiler> {
                           "${widget._employees[index].firstName} ${widget._employees[index].lastName}"),
                       subtitle: Text(shift == null
                           ? "N/A"
-                          : DateFormat.Hm().format(shift.start) +
+                          : df.format(shift.start) +
                               " - " +
-                              DateFormat.Hm().format(shift.end) +
+                              df.format(shift.end) +
                               " " +
                               DateFormat.EEEE().format(shift.end)),
                       trailing: IconButton(

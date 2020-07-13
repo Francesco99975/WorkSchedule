@@ -10,6 +10,7 @@ import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:work_schedule/widgets/SettingsPage.dart';
 import './widgets/ScheduleCompiler.dart';
 import './widgets/ScheduleWeekView.dart';
 import './db/database_provider.dart';
@@ -18,6 +19,7 @@ import './widgets/EmployeeList.dart';
 import './models/employee.dart';
 import './models/shift.dart';
 import './util/date_functions.dart';
+import 'util/settings.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +52,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   TabController _tabController;
   final List<Employee> _employees = [];
+  String _deptName = "Deli";
+  bool _nextWeekHours = true;
 
   static final _eventController = StreamController<List<BasicEvent>>()..add([]);
   static final _eventProvider =
@@ -63,7 +67,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       startTime: LocalTime(7, 0, 0),
       endTime: LocalTime(20, 0, 0),
     ),
-    initialDate: LocalDate.today(),
+    initialDate: LocalDate.dateTime(DateTime.now().add(Duration(days: 7))),
     visibleRange: VisibleRange.week(),
     firstDayOfWeek: DayOfWeek.monday,
   );
@@ -158,6 +162,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _rebuildCalendar();
   }
 
+  void _updateEmpName(int index, String fn, String ln) {
+    setState(() {
+      _employees[index].firstName = fn;
+      _employees[index].lastName = ln;
+      DatabaseProvider.db
+          .updateEmployee(_employees[index].id, _employees[index]);
+    });
+    _rebuildCalendar();
+  }
+
   void _startAddNewEmployee(BuildContext ctx) {
     showModalBottomSheet(
         context: ctx,
@@ -171,6 +185,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   pw.Document createPDF(List<DateTime> week, Function checkWeek) {
+    DateFormat df = settings['H24'] ? DateFormat.Hm() : DateFormat.jm();
     var pdf = pw.Document();
 
     pdf.addPage(pw.Page(
@@ -179,7 +194,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       build: (context) {
         return pw.Column(children: [
           pw.Text(
-            "Deli Schedule: " +
+            "$_deptName Schedule: " +
                 DateFormat.yMMMMEEEEd().format(week[0]) +
                 " - " +
                 DateFormat.yMMMMEEEEd().format(week[6]),
@@ -190,7 +205,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               border: pw.TableBorder(color: PdfColor.fromInt(0)),
               children: [
                 pw.TableRow(children: [
-                  pw.Text("Deli",
+                  pw.Text("$_deptName",
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold))
                 ], verticalAlignment: pw.TableCellVerticalAlignment.middle),
                 pw.TableRow(children: [
@@ -231,11 +246,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               crossAxisAlignment: pw.CrossAxisAlignment.center,
                               mainAxisAlignment: pw.MainAxisAlignment.center,
                               children: [
-                                  pw.Text(DateFormat.Hm()
-                                          .format(sh.start.toLocal()) +
-                                      " - "),
                                   pw.Text(
-                                      DateFormat.Hm().format(sh.end.toLocal())),
+                                      df.format(sh.start.toLocal()) + " - "),
+                                  pw.Text(df.format(sh.end.toLocal())),
                                 ])
                           : pw.Text("");
                     }).toList()
@@ -265,15 +278,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         print(appDocPath);
 
         File file = File(
-            "$appDocPath/deli-schedule_${startWeek.day}${startWeek.month}${startWeek.year}.pdf");
+            "$appDocPath/${_deptName.toLowerCase()}-schedule_${startWeek.day}${startWeek.month}${startWeek.year}.pdf");
         await file.writeAsBytes(pdf.save());
       }
     }
   }
 
   Widget build(BuildContext context) {
-    double totWeekHours =
-        _employees.fold(0.0, (prev, emp) => prev + emp.getWeekHours());
+    double totWeekHours = _employees.fold(
+        0.0, (prev, emp) => prev + emp.getWeekHours(_nextWeekHours));
 
     return DefaultTabController(
       length: 2,
@@ -283,6 +296,23 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           title: Text("Work Schedule - Tot: " +
               NumberFormat('##0.##', 'en_US').format(totWeekHours) +
               "H"),
+          actions: <Widget>[
+            FlatButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _nextWeekHours = !_nextWeekHours;
+                  });
+                },
+                textColor: Colors.black,
+                icon: Icon(Icons.next_week),
+                label: Text(_nextWeekHours ? "NW" : "TW")),
+            IconButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              ),
+              icon: Icon(Icons.settings),
+            )
+          ],
           bottom: TabBar(
             controller: _tabController,
             tabs: <Widget>[
@@ -301,7 +331,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             children: <Widget>[
               ScheduleWeekView(_controller),
               _employees.length > 0
-                  ? EmployeeList(_employees, _removeEmployee, _setColorEmp)
+                  ? EmployeeList(_employees, _removeEmployee, _setColorEmp,
+                      _updateEmpName, _nextWeekHours)
                   : Center(
                       child: Text(
                         "No Employees Registered...",

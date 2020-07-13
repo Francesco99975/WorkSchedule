@@ -28,11 +28,18 @@ class Employee {
     this.shifts = [];
   }
 
-  double getWeekHours() {
-    return this.shifts.where((sh) => thisWeek(sh.start)).fold(
-        0.0,
-        (prev, sh) =>
-            prev + (sh.end.difference(sh.start).inMinutes.toDouble() / 60));
+  double getWeekHours(bool next) {
+    if (next) {
+      return this.shifts.where((sh) => nextWeek(sh.start)).fold(
+          0.0,
+          (prev, sh) =>
+              prev + (sh.end.difference(sh.start).inMinutes.toDouble() / 60));
+    } else {
+      return this.shifts.where((sh) => thisWeek(sh.start)).fold(
+          0.0,
+          (prev, sh) =>
+              prev + (sh.end.difference(sh.start).inMinutes.toDouble() / 60));
+    }
   }
 
   Map<String, dynamic> toMap() {

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:work_schedule/models/employee.dart';
 import 'package:work_schedule/models/shift.dart';
 import '../util/date_functions.dart';
+import '../util/settings.dart';
 
 class ShiftMaker extends StatefulWidget {
   final Employee _emp;
@@ -42,6 +43,7 @@ class _ShiftMakerState extends State<ShiftMaker> {
 
   @override
   Widget build(BuildContext context) {
+    DateFormat df = settings['H24'] ? DateFormat.Hm() : DateFormat.jm();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -103,12 +105,8 @@ class _ShiftMakerState extends State<ShiftMaker> {
               FlatButton(
                 child: Text(_start == null
                     ? "N/A"
-                    : DateFormat.Hm().format(DateTime(
-                        widget._date.year,
-                        widget._date.month,
-                        widget._date.day,
-                        _start.hour,
-                        _start.minute))),
+                    : df.format(DateTime(widget._date.year, widget._date.month,
+                        widget._date.day, _start.hour, _start.minute))),
                 textColor: Colors.tealAccent,
                 onPressed: () async {
                   TimeOfDay tmp = await selectTime(context);
@@ -152,12 +150,8 @@ class _ShiftMakerState extends State<ShiftMaker> {
               FlatButton(
                 child: Text(_end == null
                     ? "N/A"
-                    : DateFormat.Hm().format(DateTime(
-                        widget._date.year,
-                        widget._date.month,
-                        widget._date.day,
-                        _end.hour,
-                        _end.minute))),
+                    : df.format(DateTime(widget._date.year, widget._date.month,
+                        widget._date.day, _end.hour, _end.minute))),
                 textColor: Colors.tealAccent,
                 onPressed: () async {
                   TimeOfDay tmp = await selectTime(context);
