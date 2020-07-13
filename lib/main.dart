@@ -293,9 +293,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Work Schedule - Tot: " +
-              NumberFormat('##0.##', 'en_US').format(totWeekHours) +
-              "H"),
+          title: FittedBox(
+            fit: BoxFit.cover,
+            child: Text("Work Schedule - $_deptName: " +
+                NumberFormat('##0.##', 'en_US').format(totWeekHours) +
+                "H"),
+          ),
           actions: <Widget>[
             FlatButton.icon(
                 onPressed: () {

@@ -75,6 +75,7 @@ class _ShiftMakerState extends State<ShiftMaker> {
           ),
           Center(
             child: FittedBox(
+              fit: BoxFit.cover,
               child: Text(
                 widget._emp.firstName +
                     " " +
