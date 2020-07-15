@@ -85,6 +85,27 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _rebuildCalendar();
   }
 
+  void _rearrangeEmps(int oldIndex, int newIndex) {
+    setState(() {
+      Employee tmp = _employees[oldIndex];
+      _employees.removeAt(oldIndex);
+      _employees.insert(newIndex, tmp);
+    });
+
+    if (newIndex > oldIndex) {
+      for (var i = newIndex; i >= 0; --i) {
+        _employees[i].hours = i.toDouble();
+      }
+    } else if (newIndex < oldIndex) {
+      for (var i = newIndex; i < _employees.length; ++i) {
+        _employees[i].hours = i.toDouble();
+      }
+    }
+
+    _employees
+        .forEach((emp) => DatabaseProvider.db.updateEmployee(emp.id, emp));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -335,7 +356,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ScheduleWeekView(_controller),
               _employees.length > 0
                   ? EmployeeList(_employees, _removeEmployee, _setColorEmp,
-                      _updateEmpName, _nextWeekHours)
+                      _updateEmpName, _rearrangeEmps, _nextWeekHours)
                   : Center(
                       child: Text(
                         "No Employees Registered...",

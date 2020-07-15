@@ -92,6 +92,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0"
+  draggable_flutter_list:
+    dependency: "direct main"
+    description:
+      name: draggable_flutter_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   file:
     dependency: transitive
     description:

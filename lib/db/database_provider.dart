@@ -47,21 +47,30 @@ class DatabaseProvider {
   Future<List<Employee>> getEmployees() async {
     final db = await database;
 
-    var employees = await db.query(TABLE_EMPLOYEES, columns: [
-      COLUMN_ID,
-      COLUMN_FIRST_NAME,
-      COLUMN_LAST_NAME,
-      COLUMN_COLOR,
-      COLUMN_HOURS,
-      COLUMN_SHIFTS
-    ]);
+    var employees = await db.query(TABLE_EMPLOYEES,
+        columns: [
+          COLUMN_ID,
+          COLUMN_FIRST_NAME,
+          COLUMN_LAST_NAME,
+          COLUMN_COLOR,
+          COLUMN_HOURS,
+          COLUMN_SHIFTS
+        ],
+        orderBy: COLUMN_HOURS);
     List<Employee> empList = List<Employee>();
 
     employees.forEach((emp) {
+      print(emp.values);
       empList.add(Employee.fromMap(emp));
     });
 
     return empList;
+  }
+
+  Future<int> count() async {
+    final db = await database;
+    return Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT(*) FROM $TABLE_EMPLOYEES"));
   }
 
   Future<Employee> insertEmployee(Employee emp) async {

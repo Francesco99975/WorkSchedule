@@ -1,3 +1,4 @@
+import 'package:draggable_flutter_list/draggable_flutter_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
@@ -10,10 +11,11 @@ class EmployeeList extends StatefulWidget {
   final Function _removeEmp;
   final Function _setColorState;
   final Function _updateEmpName;
+  final Function _rearrange;
   final bool _next;
 
   EmployeeList(this._empList, this._removeEmp, this._setColorState,
-      this._updateEmpName, this._next);
+      this._updateEmpName, this._rearrange, this._next);
 
   @override
   _EmployeeListState createState() => _EmployeeListState();
@@ -26,8 +28,8 @@ class _EmployeeListState extends State<EmployeeList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: widget._empList.length,
+    return DragAndDropList(
+      widget._empList.length,
       itemBuilder: (context, index) {
         final _fnCtrl =
             TextEditingController(text: widget._empList[index].firstName);
@@ -36,25 +38,6 @@ class _EmployeeListState extends State<EmployeeList> {
         return Card(
           elevation: 3,
           child: ListTile(
-            onLongPress: () {
-              _currentColor = Color(widget._empList[index].color);
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Select a color'),
-                    content: SingleChildScrollView(
-                      child: BlockPicker(
-                        pickerColor: _currentColor,
-                        onColorChanged: changeColor,
-                      ),
-                    ),
-                  );
-                },
-              ).then((_) {
-                widget._setColorState(index, _currentColor);
-              });
-            },
             onTap: () {
               showDialog(
                 context: context,
@@ -107,19 +90,40 @@ class _EmployeeListState extends State<EmployeeList> {
                 },
               );
             },
-            leading: CircleAvatar(
-              radius: 30,
-              backgroundColor: Color(widget._empList[index].color),
-              child: Text(
-                NumberFormat('##0.##', 'en_US').format(
-                        widget._empList[index].getWeekHours(widget._next)) +
-                    "H",
-                style: TextStyle(
-                    color:
-                        useWhiteForeground(Color(widget._empList[index].color))
-                            ? const Color(0xffffffff)
-                            : const Color(0xff000000),
-                    fontWeight: FontWeight.bold),
+            leading: GestureDetector(
+              onLongPress: () {
+                _currentColor = Color(widget._empList[index].color);
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Select a color'),
+                      content: SingleChildScrollView(
+                        child: BlockPicker(
+                          pickerColor: _currentColor,
+                          onColorChanged: changeColor,
+                        ),
+                      ),
+                    );
+                  },
+                ).then((_) {
+                  widget._setColorState(index, _currentColor);
+                });
+              },
+              child: CircleAvatar(
+                radius: 30,
+                backgroundColor: Color(widget._empList[index].color),
+                child: Text(
+                  NumberFormat('##0.##', 'en_US').format(
+                          widget._empList[index].getWeekHours(widget._next)) +
+                      "H",
+                  style: TextStyle(
+                      color: useWhiteForeground(
+                              Color(widget._empList[index].color))
+                          ? const Color(0xffffffff)
+                          : const Color(0xff000000),
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ),
             title: Text(widget._empList[index].firstName),
@@ -140,6 +144,11 @@ class _EmployeeListState extends State<EmployeeList> {
             ),
           ),
         );
+      },
+      dragElevation: 8.0,
+      canBeDraggedTo: (oldIndex, newIndex) => true,
+      onDragFinish: (oldIndex, newIndex) {
+        widget._rearrange(oldIndex, newIndex);
       },
     );
   }

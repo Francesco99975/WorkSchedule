@@ -1,3 +1,5 @@
+import 'dart:wasm';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../db/database_provider.dart';
@@ -67,16 +69,17 @@ class _AddEmployeeState extends State<AddEmployee> {
                     : const Color(0xff000000),
               ),
               RaisedButton(
-                onPressed: () {
+                onPressed: () async {
+                  var lastIndex = await DatabaseProvider.db.count();
                   if (_fnCtrl.text.trim().isNotEmpty &&
                       _lnCtrl.text.trim().isNotEmpty) {
                     Employee newEmp = Employee(
                         firstName: _fnCtrl.text.trim().capitalize(),
                         lastName: _lnCtrl.text.trim().capitalize(),
                         color: _currentColor.value,
-                        hours: 0);
+                        hours: lastIndex.toDouble());
 
-                    DatabaseProvider.db
+                    await DatabaseProvider.db
                         .insertEmployee(newEmp)
                         .then((emp) => widget._addEmp(emp));
 
