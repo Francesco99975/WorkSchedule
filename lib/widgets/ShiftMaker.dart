@@ -22,18 +22,16 @@ class _ShiftMakerState extends State<ShiftMaker> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      try {
-        final Shift tmp = widget._emp.shifts
-            .where((sh) => compareDates(sh.start, widget._date))
-            .toList()[0];
-        _start = TimeOfDay(hour: tmp.start.hour, minute: tmp.start.minute);
-        _end = TimeOfDay(hour: tmp.end.hour, minute: tmp.end.minute);
-      } catch (_) {
-        _start = null;
-        _end = null;
-      }
-    });
+    try {
+      final Shift tmp = widget._emp.shifts
+          .where((sh) => compareDates(sh.start, widget._date))
+          .toList()[0];
+      _start = TimeOfDay(hour: tmp.start.hour, minute: tmp.start.minute);
+      _end = TimeOfDay(hour: tmp.end.hour, minute: tmp.end.minute);
+    } catch (_) {
+      _start = null;
+      _end = null;
+    }
   }
 
   Future<TimeOfDay> selectTime(BuildContext context) async {
