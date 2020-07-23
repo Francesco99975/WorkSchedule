@@ -5,24 +5,20 @@ bool compareDates(DateTime a, DateTime b) {
 
 bool thisWeek(DateTime a) {
   var now = DateTime.now();
-  int startWeek = now.subtract(Duration(days: now.weekday - 1)).day;
-  int endWeek = now.add(Duration(days: 7 - now.weekday)).day;
+  var startWeek = now.subtract(Duration(days: now.weekday - 1));
+  var endWeek = now.add(Duration(days: 7 - now.weekday));
   // print("$startWeek - $endWeek / ${a.day}");
-  return now.year == a.year &&
-      now.month == a.month &&
-      a.day >= startWeek &&
-      a.day <= endWeek;
+  return a.isAfter(startWeek.subtract(Duration(days: 1))) &&
+      a.isBefore(endWeek.add(Duration(days: 1)));
 }
 
 bool nextWeek(DateTime a) {
   var now = DateTime.now().add(Duration(days: 7));
-  int startWeek = now.subtract(Duration(days: now.weekday - 1)).day;
-  int endWeek = now.add(Duration(days: 7 - now.weekday)).day;
+  var startWeek = now.subtract(Duration(days: now.weekday - 1));
+  var endWeek = now.add(Duration(days: 7 - now.weekday));
   // print("$startWeek - $endWeek / ${a.day}");
-  return now.year == a.year &&
-      now.month == a.month &&
-      a.day >= startWeek &&
-      a.day <= endWeek;
+  return a.isAfter(startWeek.subtract(Duration(days: 1))) &&
+      a.isBefore(endWeek.add(Duration(days: 1)));
 }
 
 List<DateTime> getCurrentWeek() {
