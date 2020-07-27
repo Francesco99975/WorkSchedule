@@ -9,7 +9,7 @@ bool thisWeek(DateTime a) {
   var endWeek = now.add(Duration(days: 7 - now.weekday));
   // print("$startWeek - $endWeek / ${a.day}");
   return a.isAfter(startWeek.subtract(Duration(days: 1))) &&
-      a.isBefore(endWeek.add(Duration(days: 1)));
+      a.isBefore(endWeek);
 }
 
 bool nextWeek(DateTime a) {
@@ -18,7 +18,7 @@ bool nextWeek(DateTime a) {
   var endWeek = now.add(Duration(days: 7 - now.weekday));
   // print("$startWeek - $endWeek / ${a.day}");
   return a.isAfter(startWeek.subtract(Duration(days: 1))) &&
-      a.isBefore(endWeek.add(Duration(days: 1)));
+      a.isBefore(endWeek);
 }
 
 List<DateTime> getCurrentWeek() {

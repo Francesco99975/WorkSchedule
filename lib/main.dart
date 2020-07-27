@@ -51,9 +51,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   TabController _tabController;
-  final List<Employee> _employees = [];
+  final List<Employee> _employees = []; // Create Provider
   String _deptName = "Deli";
   bool _nextWeekHours = true;
+
+  double get _totWeekHours {
+    return _employees.fold(
+        0.0, (prev, emp) => prev + emp.getWeekHours(_nextWeekHours));
+  }
 
   static final _eventController = StreamController<List<BasicEvent>>()..add([]);
   static final _eventProvider =
@@ -130,10 +135,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       shift.end.hour, shift.end.minute, shift.end.second))));
         });
       });
-
       _eventController.add(events);
+      setState(() {});
     });
-
     Permission.storage.request();
   }
 
@@ -172,6 +176,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     });
   }
 
+  // Out Source into employee provider
   void _setColorEmp(int index, Color newColor) {
     setState(() {
       _employees[index].color = newColor.value;
@@ -181,6 +186,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _rebuildCalendar();
   }
 
+  // Out Source into employee provider
   void _updateEmpName(int index, String fn, String ln) {
     setState(() {
       _employees[index].firstName = fn;
@@ -203,6 +209,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         });
   }
 
+  //Out source
   pw.Document createPDF(List<DateTime> week, Function checkWeek) {
     DateFormat df = settings['H24'] ? DateFormat.Hm() : DateFormat.jm();
     var pdf = pw.Document();
@@ -281,6 +288,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return pdf;
   }
 
+  // Out Source
   Future savePdf(pw.Document pdf, DateTime startWeek) async {
     if (await Permission.storage.request().isGranted) {
       Directory appDocDir = Directory("/storage/emulated/0");
@@ -304,18 +312,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
-    double totWeekHours = _employees.fold(
-        0.0, (prev, emp) => prev + emp.getWeekHours(_nextWeekHours));
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
+          //Out Source app bar widget
           title: FittedBox(
             fit: BoxFit.cover,
             child: Text("Work Schedule - $_deptName: " +
-                NumberFormat('##0.##', 'en_US').format(totWeekHours) +
+                NumberFormat('##0.##', 'en_US').format(_totWeekHours) +
                 "H"),
           ),
           actions: <Widget>[
