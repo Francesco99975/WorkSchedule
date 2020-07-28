@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart';
-import '../models/employee.dart';
+import '../providers/employee.dart';
 
 class DatabaseProvider {
   static const String TABLE_EMPLOYEES = "employees";

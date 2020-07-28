@@ -1,38 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:work_schedule/models/employee.dart';
+import 'package:provider/provider.dart';
 import 'package:work_schedule/models/shift.dart';
+import 'package:work_schedule/providers/employee.dart';
+import 'package:work_schedule/providers/employees.dart';
 import '../util/date_functions.dart';
-import '../util/settings.dart';
 
-class ShiftMaker extends StatefulWidget {
-  final Employee _emp;
-  final DateTime _date;
-
-  ShiftMaker(this._emp, this._date);
+class ShiftMakerScreen extends StatefulWidget {
+  static const ROUTE_NAME = '/shift-maker';
 
   @override
-  _ShiftMakerState createState() => _ShiftMakerState();
+  _ShiftMakerScreenState createState() => _ShiftMakerScreenState();
 }
 
-class _ShiftMakerState extends State<ShiftMaker> {
+class _ShiftMakerScreenState extends State<ShiftMakerScreen> {
+  Employee _emp;
+  int _empId;
   TimeOfDay _start;
   TimeOfDay _end;
-
-  @override
-  void initState() {
-    super.initState();
-    try {
-      final Shift tmp = widget._emp.shifts
-          .where((sh) => compareDates(sh.start, widget._date))
-          .toList()[0];
-      _start = TimeOfDay(hour: tmp.start.hour, minute: tmp.start.minute);
-      _end = TimeOfDay(hour: tmp.end.hour, minute: tmp.end.minute);
-    } catch (_) {
-      _start = null;
-      _end = null;
-    }
-  }
+  DateTime _date;
+  DateFormat df;
+  bool _isInit = true;
 
   Future<TimeOfDay> selectTime(BuildContext context) async {
     return await showTimePicker(
@@ -40,8 +28,31 @@ class _ShiftMakerState extends State<ShiftMaker> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInit) {
+      final args =
+          ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+      _empId = args['id'];
+      _date = args['date'];
+      df = args['timeFormat'];
+      _emp = Provider.of<Employees>(context, listen: false).findbyId(_empId);
+      try {
+        final Shift tmp = _emp.shifts
+            .where((sh) => compareDates(sh.start, _date))
+            .toList()[0];
+        _start = TimeOfDay(hour: tmp.start.hour, minute: tmp.start.minute);
+        _end = TimeOfDay(hour: tmp.end.hour, minute: tmp.end.minute);
+      } catch (_) {
+        _start = null;
+        _end = null;
+      }
+      _isInit = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    DateFormat df = settings['H24'] ? DateFormat.Hm() : DateFormat.jm();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -57,10 +68,10 @@ class _ShiftMakerState extends State<ShiftMaker> {
             onPressed: () {
               if (_start != null && _end != null) {
                 Navigator.of(context).pop(Shift(
-                    DateTime(widget._date.year, widget._date.month,
-                        widget._date.day, _start.hour, _start.minute),
-                    DateTime(widget._date.year, widget._date.month,
-                        widget._date.day, _end.hour, _end.minute)));
+                    DateTime(_date.year, _date.month, _date.day, _start.hour,
+                        _start.minute),
+                    DateTime(_date.year, _date.month, _date.day, _end.hour,
+                        _end.minute)));
               }
             },
           )
@@ -75,11 +86,11 @@ class _ShiftMakerState extends State<ShiftMaker> {
             child: FittedBox(
               fit: BoxFit.cover,
               child: Text(
-                widget._emp.firstName +
+                _emp.firstName +
                     " " +
-                    widget._emp.lastName +
+                    _emp.lastName +
                     " @ " +
-                    DateFormat.MMMMEEEEd().format(widget._date),
+                    DateFormat.MMMMEEEEd().format(_date),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 20,
@@ -104,28 +115,25 @@ class _ShiftMakerState extends State<ShiftMaker> {
               FlatButton(
                 child: Text(_start == null
                     ? "N/A"
-                    : df.format(DateTime(widget._date.year, widget._date.month,
-                        widget._date.day, _start.hour, _start.minute))),
+                    : df.format(DateTime(_date.year, _date.month, _date.day,
+                        _start.hour, _start.minute))),
                 textColor: Colors.tealAccent,
                 onPressed: () async {
                   TimeOfDay tmp = await selectTime(context);
                   if (tmp != null) {
                     setState(() {
                       if (_end != null &&
-                          DateTime(widget._date.year, widget._date.month,
-                                  widget._date.day, tmp.hour, tmp.minute)
-                              .isAfter(DateTime(
-                                  widget._date.year,
-                                  widget._date.month,
-                                  widget._date.day,
-                                  _end.hour,
-                                  _end.minute))) {
-                        var dt = DateTime(widget._date.year, widget._date.month,
-                                widget._date.day, _end.hour, _end.minute)
+                          DateTime(_date.year, _date.month, _date.day, tmp.hour,
+                                  tmp.minute)
+                              .isAfter(DateTime(_date.year, _date.month,
+                                  _date.day, _end.hour, _end.minute))) {
+                        var dt = DateTime(_date.year, _date.month, _date.day,
+                                _end.hour, _end.minute)
                             .subtract(Duration(minutes: 30));
                         _start = TimeOfDay(hour: dt.hour, minute: dt.minute);
                       } else {
                         _start = tmp;
+                        print(_start);
                       }
                     });
                   }
@@ -149,24 +157,20 @@ class _ShiftMakerState extends State<ShiftMaker> {
               FlatButton(
                 child: Text(_end == null
                     ? "N/A"
-                    : df.format(DateTime(widget._date.year, widget._date.month,
-                        widget._date.day, _end.hour, _end.minute))),
+                    : df.format(DateTime(_date.year, _date.month, _date.day,
+                        _end.hour, _end.minute))),
                 textColor: Colors.tealAccent,
                 onPressed: () async {
                   TimeOfDay tmp = await selectTime(context);
                   if (tmp != null) {
                     setState(() {
                       if (_start != null &&
-                          DateTime(widget._date.year, widget._date.month,
-                                  widget._date.day, tmp.hour, tmp.minute)
-                              .isBefore(DateTime(
-                                  widget._date.year,
-                                  widget._date.month,
-                                  widget._date.day,
-                                  _start.hour,
-                                  _start.minute))) {
-                        var dt = DateTime(widget._date.year, widget._date.month,
-                                widget._date.day, _start.hour, _start.minute)
+                          DateTime(_date.year, _date.month, _date.day, tmp.hour,
+                                  tmp.minute)
+                              .isBefore(DateTime(_date.year, _date.month,
+                                  _date.day, _start.hour, _start.minute))) {
+                        var dt = DateTime(_date.year, _date.month, _date.day,
+                                _start.hour, _start.minute)
                             .add(Duration(minutes: 30));
                         _end = TimeOfDay(hour: dt.hour, minute: dt.minute);
                       } else {
@@ -194,7 +198,7 @@ class _ShiftMakerState extends State<ShiftMaker> {
                   _start = null;
                   _end = null;
                 });
-                Navigator.of(context).pop(widget._date);
+                Navigator.of(context).pop(_date);
               },
             ),
           )

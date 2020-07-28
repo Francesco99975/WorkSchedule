@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:timetable/timetable.dart';
 
-class ScheduleWeekView extends StatefulWidget {
+class ScheduleWeekViewScreen extends StatefulWidget {
+  static const ROUTE_NAME = '/timetable';
   final TimetableController<BasicEvent> _controller;
 
-  ScheduleWeekView(this._controller);
+  ScheduleWeekViewScreen(this._controller);
   @override
-  _ScheduleWeekViewState createState() => _ScheduleWeekViewState();
+  _ScheduleWeekViewScreenState createState() => _ScheduleWeekViewScreenState();
 }
 
-class _ScheduleWeekViewState extends State<ScheduleWeekView> {
+class _ScheduleWeekViewScreenState extends State<ScheduleWeekViewScreen> {
   @override
   Widget build(BuildContext context) {
     return Timetable<BasicEvent>(

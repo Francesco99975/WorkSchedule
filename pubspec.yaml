@@ -34,6 +34,7 @@ dependencies:
   flushbar: ^1.10.4
   permission_handler: ^5.0.1+1
   draggable_flutter_list: ^1.0.3
+  provider: ^4.3.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

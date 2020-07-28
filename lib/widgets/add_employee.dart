@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:provider/provider.dart';
+import 'package:work_schedule/providers/employees.dart';
 import '../db/database_provider.dart';
-import '../models/employee.dart';
+import '../providers/employee.dart';
 import '../util/string_extension.dart';
 
 class AddEmployee extends StatefulWidget {
-  final Function _addEmp;
-
-  AddEmployee(this._addEmp);
-
   @override
   _AddEmployeeState createState() => _AddEmployeeState();
 }
@@ -77,9 +75,8 @@ class _AddEmployeeState extends State<AddEmployee> {
                         color: _currentColor.value,
                         hours: lastIndex.toDouble());
 
-                    await DatabaseProvider.db
-                        .insertEmployee(newEmp)
-                        .then((emp) => widget._addEmp(emp));
+                    await Provider.of<Employees>(context, listen: false)
+                        .addEmployee(newEmp);
 
                     Navigator.of(context).pop();
                   }

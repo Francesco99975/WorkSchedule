@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../util/settings.dart';
+import 'package:provider/provider.dart';
+import 'package:work_schedule/providers/settings.dart';
 
-class SettingsPage extends StatefulWidget {
-  @override
-  _SettingsPageState createState() => _SettingsPageState();
-}
+class SettingsScreen extends StatelessWidget {
+  static const ROUTE_NAME = '/settings';
 
-class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    DateFormat df = settings['H24'] ? DateFormat.Hm() : DateFormat.jm();
+    final settings = Provider.of<Settings>(context);
+    DateFormat df = settings.timeFormat ? DateFormat.Hm() : DateFormat.jm();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -27,12 +26,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             subtitle: Text(df.format(DateTime.now())),
             trailing: Switch(
-              onChanged: (value) {
-                setState(() {
-                  settings['H24'] = !settings['H24'];
-                });
-              },
-              value: settings['H24'],
+              onChanged: (value) => settings.toggleTimeFormat(),
+              value: settings.timeFormat,
             ),
           )
         ],
