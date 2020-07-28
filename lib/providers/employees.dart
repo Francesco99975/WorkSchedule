@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:work_schedule/db/database_provider.dart';
+import '../db/database_provider.dart';
 import 'employee.dart';
 
 class Employees with ChangeNotifier {
@@ -36,12 +36,12 @@ class Employees with ChangeNotifier {
 
   Future<void> removeEmployee(int id) async {
     final index = _items.indexWhere((itm) => itm.id == id);
-    if (index > 0) {
+    if (index >= 0) {
+      print("hell0");
       await DatabaseProvider.db.deleteEmployee(id);
       _items.removeAt(index);
       notifyListeners();
     }
-    //Rebuild Calendar
   }
 
   void rearrangeEmps(int oldIndex, int newIndex) {

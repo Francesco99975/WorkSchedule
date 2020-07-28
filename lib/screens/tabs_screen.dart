@@ -7,15 +7,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
-import 'package:work_schedule/providers/employee.dart';
-import 'package:work_schedule/providers/employees.dart';
-import 'package:work_schedule/screens/employee_list_screen.dart';
-import 'package:work_schedule/screens/schedule_compiler_screen.dart';
-import 'package:work_schedule/screens/schedule_week_view_screen.dart';
-import 'package:work_schedule/screens/settings_screen.dart';
-import 'package:work_schedule/util/date_functions.dart';
-import 'package:work_schedule/util/pdf_builder.dart';
-import 'package:work_schedule/widgets/add_employee.dart';
+import '../providers/employee.dart';
+import '../providers/employees.dart';
+import '../screens/employee_list_screen.dart';
+import '../screens/schedule_compiler_screen.dart';
+import '../screens/schedule_week_view_screen.dart';
+import '../screens/settings_screen.dart';
+import '../util/date_functions.dart';
+import '../util/pdf_builder.dart';
+import '../widgets/add_employee.dart';
 
 class TabsScreen extends StatefulWidget {
   @override
@@ -162,7 +162,7 @@ class _TabsScreenState extends State<TabsScreen>
                   : <Widget>[
                       ScheduleWeekViewScreen(_controller),
                       employees.items.length > 0
-                          ? EmployeeListScreen()
+                          ? EmployeeListScreen(_rebuildCalendar)
                           : Center(
                               child: Text(
                                 "No Employees Registered...",

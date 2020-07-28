@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
-import 'package:work_schedule/providers/employees.dart';
+import '../providers/employees.dart';
 import '../db/database_provider.dart';
 import '../providers/employee.dart';
 import '../util/string_extension.dart';

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timetable/timetable.dart';
-import 'package:work_schedule/providers/settings.dart';
-import 'package:work_schedule/widgets/employee_time_item.dart';
+import '../providers/settings.dart';
+import '../widgets/employee_time_item.dart';
 import '../util/date_functions.dart';
 import '../providers/employees.dart';
 

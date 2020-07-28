@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:work_schedule/models/shift.dart';
-import 'package:work_schedule/providers/employee.dart';
-import 'package:work_schedule/screens/shift_maker_screen.dart';
-import 'package:work_schedule/util/date_functions.dart';
+import '../models/shift.dart';
+import '../providers/employee.dart';
+import '../screens/shift_maker_screen.dart';
+import '../util/date_functions.dart';
 
 class EmployeeTimeItem extends StatelessWidget {
   final DateTime _selectedDate;

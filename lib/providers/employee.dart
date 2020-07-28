@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import '../db/database_provider.dart';
 import '../models/shift.dart';
 import '../util/date_functions.dart';
@@ -34,7 +34,6 @@ class Employee with ChangeNotifier {
     lastName = ln;
     await DatabaseProvider.db.updateEmployee(id, this);
     notifyListeners();
-    //Rebuild Calendar
   }
 
   Future<void> update(value) async {
@@ -62,7 +61,6 @@ class Employee with ChangeNotifier {
     color = newColor.value;
     await DatabaseProvider.db.updateEmployee(id, this);
     notifyListeners();
-    //Rebuild Calendar
   }
 
   double getWeekHours(bool next) {

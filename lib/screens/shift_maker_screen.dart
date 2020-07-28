@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:work_schedule/models/shift.dart';
-import 'package:work_schedule/providers/employee.dart';
-import 'package:work_schedule/providers/employees.dart';
+import '../models/shift.dart';
+import '../providers/employee.dart';
+import '../providers/employees.dart';
 import '../util/date_functions.dart';
 
 class ShiftMakerScreen extends StatefulWidget {

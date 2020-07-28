@@ -4,11 +4,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:work_schedule/models/shift.dart';
-import 'package:work_schedule/providers/employee.dart';
-import 'package:work_schedule/providers/settings.dart';
-import 'date_functions.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../models/shift.dart';
+import '../providers/employee.dart';
+import '../providers/settings.dart';
+import 'date_functions.dart';
 
 class PDFBuilder {
   final List<Employee> _emps;
