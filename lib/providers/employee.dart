@@ -14,18 +14,20 @@ List<Shift> parseShifts(String enc) {
 
 class Employee with ChangeNotifier {
   int id;
+  int deptId;
   String firstName;
   String lastName;
   int color;
-  double hours;
+  double priority;
   List<Shift> shifts;
 
   Employee(
       {this.id,
+      this.deptId = 0,
       @required this.firstName,
       @required this.lastName,
       @required this.color,
-      @required this.hours}) {
+      @required this.priority}) {
     this.shifts = [];
   }
 
@@ -79,10 +81,11 @@ class Employee with ChangeNotifier {
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
+      DatabaseProvider.COLUMN_DEPT_ID: deptId,
       DatabaseProvider.COLUMN_FIRST_NAME: firstName,
       DatabaseProvider.COLUMN_LAST_NAME: lastName,
       DatabaseProvider.COLUMN_COLOR: color,
-      DatabaseProvider.COLUMN_HOURS: hours,
+      DatabaseProvider.COLUMN_PRIORITY: priority,
       DatabaseProvider.COLUMN_SHIFTS: jsonEncode(shifts)
     };
 
@@ -93,10 +96,11 @@ class Employee with ChangeNotifier {
 
   Employee.fromMap(Map<String, dynamic> map) {
     id = map[DatabaseProvider.COLUMN_ID];
+    deptId = map[DatabaseProvider.COLUMN_DEPT_ID];
     firstName = map[DatabaseProvider.COLUMN_FIRST_NAME];
     lastName = map[DatabaseProvider.COLUMN_LAST_NAME];
     color = map[DatabaseProvider.COLUMN_COLOR];
-    hours = map[DatabaseProvider.COLUMN_HOURS];
+    priority = map[DatabaseProvider.COLUMN_PRIORITY];
     shifts = parseShifts(map[DatabaseProvider.COLUMN_SHIFTS]);
   }
 }

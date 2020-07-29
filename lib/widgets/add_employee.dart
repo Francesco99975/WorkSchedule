@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
+import '../providers/departments.dart';
 import '../providers/employees.dart';
 import '../db/database_provider.dart';
 import '../providers/employee.dart';
@@ -70,10 +71,13 @@ class _AddEmployeeState extends State<AddEmployee> {
                   if (_fnCtrl.text.trim().isNotEmpty &&
                       _lnCtrl.text.trim().isNotEmpty) {
                     Employee newEmp = Employee(
+                        deptId: Provider.of<Departments>(context, listen: false)
+                            .current
+                            .id,
                         firstName: _fnCtrl.text.trim().capitalize(),
                         lastName: _lnCtrl.text.trim().capitalize(),
                         color: _currentColor.value,
-                        hours: lastIndex.toDouble());
+                        priority: lastIndex.toDouble());
 
                     await Provider.of<Employees>(context, listen: false)
                         .addEmployee(newEmp);

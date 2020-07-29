@@ -18,6 +18,7 @@ class Employees with ChangeNotifier {
         loadedEmps.add(emp);
       });
       _items = loadedEmps;
+      print("Employees Loaded!");
       notifyListeners();
     } catch (e) {
       print(e.toString());
@@ -51,11 +52,11 @@ class Employees with ChangeNotifier {
 
     if (newIndex > oldIndex) {
       for (var i = newIndex; i >= 0; --i) {
-        _items[i].hours = i.toDouble();
+        _items[i].priority = i.toDouble();
       }
     } else if (newIndex < oldIndex) {
       for (var i = newIndex; i < _items.length; ++i) {
-        _items[i].hours = i.toDouble();
+        _items[i].priority = i.toDouble();
       }
     }
 

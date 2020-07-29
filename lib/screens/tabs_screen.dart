@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
+import 'package:work_schedule/providers/departments.dart';
+import 'package:work_schedule/providers/settings.dart';
 import '../providers/employee.dart';
 import '../providers/employees.dart';
 import '../screens/employee_list_screen.dart';
@@ -51,13 +53,18 @@ class _TabsScreenState extends State<TabsScreen>
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
     Future.delayed(Duration.zero).then((_) {
-      final emps = Provider.of<Employees>(context, listen: false);
-      emps.loadEmployees().then((_) {
-        _rebuildCalendar(emps.items);
-        setState(() {
-          _isLoading = false;
-        });
-      });
+      Provider.of<Settings>(context, listen: false).loadSettings().then((_) =>
+          Provider.of<Departments>(context, listen: false)
+              .loadDepartments()
+              .then((_) {
+            final emps = Provider.of<Employees>(context, listen: false);
+            emps.loadEmployees().then((_) {
+              _rebuildCalendar(emps.items);
+              setState(() {
+                _isLoading = false;
+              });
+            });
+          }));
     });
     Permission.storage.request();
   }

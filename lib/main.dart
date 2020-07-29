@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:time_machine/time_machine.dart';
+import 'package:work_schedule/providers/departments.dart';
 import './providers/settings.dart';
 import './screens/schedule_compiler_screen.dart';
 import './screens/settings_screen.dart';
@@ -24,11 +25,14 @@ class WorkScheduleApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => Employees(),
+          create: (_) => Settings(),
         ),
         ChangeNotifierProvider(
-          create: (_) => Settings(),
-        )
+          create: (_) => Departments(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => Employees(),
+        ),
       ],
       child: MaterialApp(
         theme: ThemeData(
