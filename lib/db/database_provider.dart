@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart';
-import 'package:work_schedule/providers/department.dart';
+import '../providers/department.dart';
 import '../providers/employee.dart';
 
 class DatabaseProvider {
@@ -116,6 +116,7 @@ class DatabaseProvider {
     var employees = await db.query(TABLE_EMPLOYEES,
         columns: [
           COLUMN_ID,
+          COLUMN_DEPT_ID,
           COLUMN_FIRST_NAME,
           COLUMN_LAST_NAME,
           COLUMN_COLOR,
@@ -165,6 +166,7 @@ class DatabaseProvider {
 
   Future<Employee> insertEmployee(Employee emp) async {
     final db = await database;
+    print(emp.toMap());
     emp.id = await db.insert(TABLE_EMPLOYEES, emp.toMap());
     return emp;
   }
@@ -191,10 +193,11 @@ class DatabaseProvider {
 
   Future<int> updateSettings(Map<String, dynamic> settings) async {
     final db = await database;
+    bool is24 = settings['H24'];
 
     return await db.update(
-        TABLE_SETTINGS, settings['H24'] ? {COLUMN_H24: 1} : {COLUMN_H24: 0},
-        where: "$COLUMN_ID = 0");
+        TABLE_SETTINGS, is24 ? {COLUMN_H24: 1} : {COLUMN_H24: 0},
+        where: "$COLUMN_ID = 1");
   }
 
   Future<int> deleteEmployee(int id) async {

@@ -26,7 +26,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             subtitle: Text(df.format(DateTime.now())),
             trailing: Switch(
-              onChanged: (value) => settings.toggleTimeFormat(),
+              onChanged: (value) => settings.toggleTimeFormat(value),
               value: settings.timeFormat,
             ),
           )

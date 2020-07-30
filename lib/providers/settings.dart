@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:work_schedule/db/database_provider.dart';
+import '../db/database_provider.dart';
 
 class Settings with ChangeNotifier {
   Map<String, dynamic> _options = {DatabaseProvider.COLUMN_H24: false};
@@ -12,8 +12,8 @@ class Settings with ChangeNotifier {
     print("Settings Loaded!");
   }
 
-  Future<void> toggleTimeFormat() async {
-    _options['H24'] = !_options['H24'];
+  Future<void> toggleTimeFormat(bool val) async {
+    _options['H24'] = val;
     await DatabaseProvider.db.updateSettings(_options);
     notifyListeners();
   }

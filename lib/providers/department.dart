@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:work_schedule/db/database_provider.dart';
+import '../db/database_provider.dart';
 
 class Department with ChangeNotifier {
   int id;

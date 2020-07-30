@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:time_machine/time_machine.dart';
-import 'package:work_schedule/providers/departments.dart';
+import './providers/departments.dart';
 import './providers/settings.dart';
 import './screens/schedule_compiler_screen.dart';
 import './screens/settings_screen.dart';

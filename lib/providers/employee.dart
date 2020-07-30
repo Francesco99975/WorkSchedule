@@ -23,12 +23,15 @@ class Employee with ChangeNotifier {
 
   Employee(
       {this.id,
-      this.deptId = 0,
+      @required this.deptId,
       @required this.firstName,
       @required this.lastName,
       @required this.color,
-      @required this.priority}) {
-    this.shifts = [];
+      @required this.priority,
+      this.shifts}) {
+    if (this.shifts == null) {
+      this.shifts = [];
+    }
   }
 
   Future<void> updateEmpName(String fn, String ln) async {

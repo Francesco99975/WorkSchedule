@@ -79,6 +79,8 @@ class _AddEmployeeState extends State<AddEmployee> {
                         color: _currentColor.value,
                         priority: lastIndex.toDouble());
 
+                    print(newEmp.deptId);
+
                     await Provider.of<Employees>(context, listen: false)
                         .addEmployee(newEmp);
 

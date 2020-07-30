@@ -7,8 +7,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
-import 'package:work_schedule/providers/departments.dart';
-import 'package:work_schedule/providers/settings.dart';
+import '../providers/departments.dart';
+import '../providers/settings.dart';
+import '../widgets/main_drawer.dart';
 import '../providers/employee.dart';
 import '../providers/employees.dart';
 import '../screens/employee_list_screen.dart';
@@ -56,9 +57,11 @@ class _TabsScreenState extends State<TabsScreen>
       Provider.of<Settings>(context, listen: false).loadSettings().then((_) =>
           Provider.of<Departments>(context, listen: false)
               .loadDepartments()
-              .then((_) {
+              .then((deptId) {
+            _deptName =
+                Provider.of<Departments>(context, listen: false).current.name;
             final emps = Provider.of<Employees>(context, listen: false);
-            emps.loadEmployees().then((_) {
+            emps.loadEmployees(deptId).then((_) {
               _rebuildCalendar(emps.items);
               setState(() {
                 _isLoading = false;
@@ -100,6 +103,7 @@ class _TabsScreenState extends State<TabsScreen>
                       shift.end.hour, shift.end.minute, shift.end.second))));
         });
       });
+      _deptName = Provider.of<Departments>(context, listen: false).current.name;
       _eventController.add(events);
     });
   }
@@ -154,6 +158,7 @@ class _TabsScreenState extends State<TabsScreen>
               ],
             ),
           ),
+          drawer: MainDrawer(_rebuildCalendar),
           body: SafeArea(
             child: TabBarView(
               controller: _tabController,

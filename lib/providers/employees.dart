@@ -10,14 +10,24 @@ class Employees with ChangeNotifier {
     return [..._items];
   }
 
-  Future<void> loadEmployees() async {
+  Future<void> loadEmployees(int filterId) async {
     try {
       final empList = await DatabaseProvider.db.getEmployees();
       List<Employee> loadedEmps = [];
       empList.forEach((emp) {
+        if (emp.deptId == null) {
+          emp = Employee(
+              id: emp.id,
+              deptId: 1,
+              firstName: emp.firstName,
+              lastName: emp.lastName,
+              color: emp.color,
+              priority: emp.priority,
+              shifts: emp.shifts);
+        }
         loadedEmps.add(emp);
       });
-      _items = loadedEmps;
+      _items = loadedEmps.where((emp) => emp.deptId == filterId).toList();
       print("Employees Loaded!");
       notifyListeners();
     } catch (e) {

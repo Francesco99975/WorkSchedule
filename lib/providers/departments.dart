@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:work_schedule/db/database_provider.dart';
-import 'package:work_schedule/providers/department.dart';
+import '../db/database_provider.dart';
+import '../providers/department.dart';
 
 class Departments with ChangeNotifier {
   List<Department> _items = [];
@@ -16,9 +16,10 @@ class Departments with ChangeNotifier {
 
   void setCurrentIndex(int index) {
     _currentIndex = index;
+    notifyListeners();
   }
 
-  Future<void> loadDepartments() async {
+  Future<int> loadDepartments() async {
     try {
       final deptList = await DatabaseProvider.db.getDepartments();
       List<Department> loadedDepts = [];
@@ -26,11 +27,12 @@ class Departments with ChangeNotifier {
         loadedDepts.add(emp);
       });
       _items = loadedDepts;
-      print(_items);
       print("Departments Loaded!");
       notifyListeners();
+      return Future(() => current.id);
     } catch (e) {
       print(e.toString());
+      return Future(() => -1);
     }
   }
 
@@ -44,5 +46,6 @@ class Departments with ChangeNotifier {
     await DatabaseProvider.db.deleteDept(id);
     final index = _items.indexWhere((dept) => dept.id == id);
     _items.removeAt(index);
+    notifyListeners();
   }
 }
