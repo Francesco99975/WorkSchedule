@@ -76,10 +76,36 @@ class _EmployeeItemState extends State<EmployeeItem> {
             color: Colors.red,
           ),
           onPressed: () async {
-            await Provider.of<Employees>(context, listen: false)
-                .removeEmployee(emp.id);
-            widget._rebuildCalendar(
-                Provider.of<Employees>(context, listen: false).items);
+            var del = false;
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text("Are you sure ?"),
+                content: const Text("Do you want to remove this employee?"),
+                actions: <Widget>[
+                  FlatButton(
+                    child: const Text("No"),
+                    onPressed: () {
+                      del = false;
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: const Text("Yes"),
+                    onPressed: () {
+                      del = true;
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            );
+            if (del) {
+              await Provider.of<Employees>(context, listen: false)
+                  .removeEmployee(emp.id);
+              widget._rebuildCalendar(
+                  Provider.of<Employees>(context, listen: false).items);
+            }
           },
         ),
       ),

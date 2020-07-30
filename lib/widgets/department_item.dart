@@ -37,8 +37,11 @@ class DepartmentItem extends StatelessWidget {
         ),
         alignment: Alignment.centerRight,
       ),
+      // ignore: missing_return
       confirmDismiss: (direction) async {
-        if (direction == DismissDirection.endToStart) {
+        if (direction == DismissDirection.endToStart &&
+            Provider.of<Departments>(context, listen: false).items.length > 1 &&
+            !_selected) {
           return await showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -56,11 +59,11 @@ class DepartmentItem extends StatelessWidget {
               ],
             ),
           );
-        } else {
+        } else if (direction == DismissDirection.startToEnd) {
           return await showDialog(
               context: context,
               builder: (context) {
-                final deptCtrl = TextEditingController();
+                final deptCtrl = TextEditingController(text: dept.name);
                 return AlertDialog(
                   title: const Text(
                     "Edit Department",
@@ -83,6 +86,9 @@ class DepartmentItem extends StatelessWidget {
                       onPressed: () async {
                         if (deptCtrl.text.trim().isNotEmpty) {
                           await dept.updateName(deptCtrl.text);
+                          _rebuildCalendar(
+                              Provider.of<Employees>(context, listen: false)
+                                  .items);
                           Navigator.of(context).pop(false);
                         }
                       },
@@ -97,7 +103,9 @@ class DepartmentItem extends StatelessWidget {
         }
       },
       onDismissed: (direction) async {
-        if (direction == DismissDirection.endToStart) {
+        if (direction == DismissDirection.endToStart &&
+            Provider.of<Departments>(context, listen: false).items.length > 1 &&
+            !_selected) {
           await Provider.of<Departments>(context, listen: false)
               .removeDepartment(dept.id);
         }

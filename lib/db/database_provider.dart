@@ -210,6 +210,9 @@ class DatabaseProvider {
   Future<int> deleteDept(int id) async {
     final db = await database;
 
+    await db
+        .delete(TABLE_EMPLOYEES, where: "$COLUMN_DEPT_ID = ?", whereArgs: [id]);
+
     return await db.delete(TABLE_DEPARTMENTS,
         where: "$COLUMN_DEPT_ID = ?", whereArgs: [id]);
   }

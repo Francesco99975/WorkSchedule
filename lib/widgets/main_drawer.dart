@@ -23,7 +23,8 @@ class MainDrawer extends StatelessWidget {
               children: <Widget>[
                 Consumer<Departments>(
                   builder: (_, depts, __) => Container(
-                    height: depts.items.length * 80.0,
+                    height:
+                        depts.items.length * 100.0 - (depts.items.length * 10),
                     padding: const EdgeInsets.all(3.0),
                     child: ListView.builder(
                         itemCount: depts.items.length,
@@ -37,6 +38,7 @@ class MainDrawer extends StatelessWidget {
                             )),
                   ),
                 ),
+                Divider(),
                 AddDepartmentItem()
               ],
             ),
