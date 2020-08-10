@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -51,6 +52,22 @@ class _TabsScreenState extends State<TabsScreen>
   @override
   void initState() {
     super.initState();
+    final fbm = FirebaseMessaging();
+    fbm.requestNotificationPermissions();
+    fbm.configure(
+      onMessage: (message) async {
+        print("onMessage: $message");
+        _showNotificationDialog(message);
+      },
+      onResume: (message) {
+        print("Resume: $message");
+        return;
+      },
+      onLaunch: (message) {
+        print(message);
+        return;
+      },
+    );
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
     Future.delayed(Duration.zero).then((_) {
@@ -79,6 +96,24 @@ class _TabsScreenState extends State<TabsScreen>
     _eventController.close();
     _eventProvider.dispose();
     super.dispose();
+  }
+
+  Future<void> _showNotificationDialog(Map<String, dynamic> message) async {
+    await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text(message['notification']['title']),
+              elevation: 2,
+              content: Text(message['notification']['body']),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("Dismiss"),
+                  textColor: Theme.of(context).primaryColor,
+                  color: Colors.black,
+                  onPressed: () => Navigator.of(context).pop(),
+                )
+              ],
+            ));
   }
 
   void _handleTabIndex() {

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "823349921660",
+    "firebase_url": "https://workschedule-d21cd.firebaseio.com",
+    "project_id": "workschedule-d21cd",
+    "storage_bucket": "workschedule-d21cd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823349921660:android:9dd63017132b889c4846f9",
+        "android_client_info": {
+          "package_name": "dev.francescobarranca.work_schedule"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "823349921660-kvnvch1dijj5dvm9j1c1f75g7v97jht0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAn-H5TRIDAWfyVGxQfaw-IUZCXF9VQpVo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "823349921660-kvnvch1dijj5dvm9j1c1f75g7v97jht0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
