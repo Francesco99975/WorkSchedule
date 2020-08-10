@@ -18,6 +18,7 @@ class _ScheduleCompilerScreenState extends State<ScheduleCompilerScreen> {
   TimeOfDay startTime;
   TimeOfDay endTime;
   List<BasicEvent> eventsPayload = [];
+  final sensitivity = 7.3;
 
   void _presentDatePicker(BuildContext ctx) async {
     final pickedDate = await showDatePicker(
@@ -65,6 +66,43 @@ class _ScheduleCompilerScreenState extends State<ScheduleCompilerScreen> {
           ),
         ),
       ]),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(left: 30.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            FloatingActionButton(
+              heroTag: "btna1",
+              child: Icon(
+                Icons.keyboard_arrow_left,
+                size: 30.0,
+              ),
+              onPressed: () {
+                //left swipe
+                setState(() {
+                  _selectedDate = _selectedDate.subtract(Duration(days: 1));
+                });
+              },
+            ),
+            const SizedBox(
+              width: 15,
+            ),
+            FloatingActionButton(
+              heroTag: "btna2",
+              child: Icon(
+                Icons.keyboard_arrow_right,
+                size: 30.0,
+              ),
+              onPressed: () {
+                //right swipe
+                setState(() {
+                  _selectedDate = _selectedDate.add(Duration(days: 1));
+                });
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

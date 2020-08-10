@@ -129,7 +129,7 @@ class _TabsScreenState extends State<TabsScreen>
           appBar: AppBar(
             title: FittedBox(
               fit: BoxFit.cover,
-              child: Text("Work Schedule - $_deptName: " +
+              child: Text("$_deptName Dept: " +
                   NumberFormat('##0.##', 'en_US')
                       .format(employees.totWeekHours) +
                   "H"),
