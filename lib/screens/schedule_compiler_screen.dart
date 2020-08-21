@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:timetable/timetable.dart';
 import '../providers/settings.dart';
 import '../widgets/employee_time_item.dart';
-import '../util/date_functions.dart';
 import '../providers/employees.dart';
 
 class ScheduleCompilerScreen extends StatefulWidget {
@@ -14,7 +13,6 @@ class ScheduleCompilerScreen extends StatefulWidget {
 }
 
 class _ScheduleCompilerScreenState extends State<ScheduleCompilerScreen> {
-  DateTime _selectedDate = getNextWeek()[0];
   TimeOfDay startTime;
   TimeOfDay endTime;
   List<BasicEvent> eventsPayload = [];
@@ -23,15 +21,13 @@ class _ScheduleCompilerScreenState extends State<ScheduleCompilerScreen> {
   void _presentDatePicker(BuildContext ctx) async {
     final pickedDate = await showDatePicker(
         context: ctx,
-        initialDate: _selectedDate,
+        initialDate: Provider.of<Settings>(context, listen: false).date,
         firstDate: DateTime(2020),
         lastDate: DateTime(2090));
 
     if (pickedDate == null) return;
 
-    setState(() {
-      _selectedDate = pickedDate;
-    });
+    Provider.of<Settings>(context, listen: false).setCurrentDate(pickedDate);
   }
 
   @override
@@ -48,9 +44,38 @@ class _ScheduleCompilerScreenState extends State<ScheduleCompilerScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            RaisedButton(
-              onPressed: () => _presentDatePicker(context),
-              child: Text(DateFormat.yMMMMEEEEd().format(_selectedDate)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(
+                    Icons.keyboard_arrow_left,
+                    size: 30.0,
+                  ),
+                  color: Theme.of(context).accentColor,
+                  onPressed: () => Provider.of<Settings>(context, listen: false)
+                      .decreaseDay(),
+                ),
+                RaisedButton(
+                  textColor: Colors.black,
+                  elevation: 3.0,
+                  color: Theme.of(context).primaryColor,
+                  onPressed: () => _presentDatePicker(context),
+                  child: Consumer<Settings>(
+                    builder: (_, settings, __) =>
+                        Text(DateFormat.yMMMMEEEEd().format(settings.date)),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.keyboard_arrow_right,
+                    size: 30.0,
+                  ),
+                  color: Theme.of(context).accentColor,
+                  onPressed: () => Provider.of<Settings>(context, listen: false)
+                      .increaseDay(),
+                ),
+              ],
             ),
           ],
         ),
@@ -60,49 +85,13 @@ class _ScheduleCompilerScreenState extends State<ScheduleCompilerScreen> {
               itemCount: employees.items.length,
               itemBuilder: (_, index) => ChangeNotifierProvider.value(
                 value: employees.items[index],
-                child: EmployeeTimeItem(_selectedDate, df),
+                child:
+                    EmployeeTimeItem(Provider.of<Settings>(context).date, df),
               ),
             ),
           ),
         ),
       ]),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(left: 30.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            FloatingActionButton(
-              heroTag: "btna1",
-              child: Icon(
-                Icons.keyboard_arrow_left,
-                size: 30.0,
-              ),
-              onPressed: () {
-                //left swipe
-                setState(() {
-                  _selectedDate = _selectedDate.subtract(Duration(days: 1));
-                });
-              },
-            ),
-            const SizedBox(
-              width: 15,
-            ),
-            FloatingActionButton(
-              heroTag: "btna2",
-              child: Icon(
-                Icons.keyboard_arrow_right,
-                size: 30.0,
-              ),
-              onPressed: () {
-                //right swipe
-                setState(() {
-                  _selectedDate = _selectedDate.add(Duration(days: 1));
-                });
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

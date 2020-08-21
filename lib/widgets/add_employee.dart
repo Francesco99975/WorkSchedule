@@ -50,9 +50,10 @@ class _AddEmployeeState extends State<AddEmployee> {
                       return AlertDialog(
                         title: Text('Select a color'),
                         content: SingleChildScrollView(
-                          child: BlockPicker(
+                          child: ColorPicker(
                             pickerColor: _currentColor,
                             onColorChanged: changeColor,
+                            showLabel: true,
                           ),
                         ),
                       );
