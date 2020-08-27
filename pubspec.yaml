@@ -36,6 +36,7 @@ dependencies:
   draggable_flutter_list: ^1.0.3 #MIT
   provider: ^4.3.1 #MIT
   firebase_messaging: ^6.0.16 #BSD
+  ext_storage: ^1.0.3 #MIT
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

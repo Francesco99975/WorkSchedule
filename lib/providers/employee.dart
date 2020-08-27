@@ -70,15 +70,23 @@ class Employee with ChangeNotifier {
 
   double getWeekHours(bool next) {
     if (next) {
-      return this.shifts.where((sh) => nextWeek(sh.start)).fold(
-          0.0,
-          (prev, sh) =>
-              prev + (sh.end.difference(sh.start).inMinutes.toDouble() / 60));
+      return this
+          .shifts
+          .where((sh) => nextWeek(sh.start) && sh.status == Status.Working)
+          .fold(
+              0.0,
+              (prev, sh) =>
+                  prev +
+                  (sh.end.difference(sh.start).inMinutes.toDouble() / 60));
     } else {
-      return this.shifts.where((sh) => thisWeek(sh.start)).fold(
-          0.0,
-          (prev, sh) =>
-              prev + (sh.end.difference(sh.start).inMinutes.toDouble() / 60));
+      return this
+          .shifts
+          .where((sh) => thisWeek(sh.start) && sh.status == Status.Working)
+          .fold(
+              0.0,
+              (prev, sh) =>
+                  prev +
+                  (sh.end.difference(sh.start).inMinutes.toDouble() / 60));
     }
   }
 

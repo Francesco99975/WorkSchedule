@@ -27,12 +27,16 @@ class EmployeeTimeItem extends StatelessWidget {
       child: ListTile(
         title: Text("${emp.firstName} ${emp.lastName}"),
         subtitle: Text(shift == null
-            ? "N/A"
-            : df.format(shift.start) +
-                " - " +
-                df.format(shift.end) +
-                " " +
-                DateFormat.EEEE().format(shift.end)),
+            ? "OFF WORK"
+            : shift.status == Status.NotAvailable
+                ? "N/A"
+                : shift.status == Status.Vacation
+                    ? "Vacation"
+                    : df.format(shift.start) +
+                        " - " +
+                        df.format(shift.end) +
+                        " " +
+                        DateFormat.EEEE().format(shift.end)),
         trailing: IconButton(
             icon: Icon(Icons.schedule),
             color: Color(emp.color),

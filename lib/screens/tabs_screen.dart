@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
+import 'package:work_schedule/models/shift.dart';
 import '../providers/departments.dart';
 import '../providers/settings.dart';
 import '../widgets/main_drawer.dart';
@@ -124,7 +125,7 @@ class _TabsScreenState extends State<TabsScreen>
     setState(() {
       List<BasicEvent> events = [];
       emps.forEach((emp) {
-        emp.shifts.forEach((shift) {
+        emp.shifts.where((sh) => sh.status == Status.Working).forEach((shift) {
           events.add(BasicEvent(
               id: emp.id + Random().nextInt(99999),
               color: Color(emp.color),
@@ -245,8 +246,8 @@ class _TabsScreenState extends State<TabsScreen>
                 height: 20,
               ),
               GestureDetector(
-                onLongPress: () {
-                  pdf
+                onLongPress: () async {
+                  await pdf
                       .savePdf(pdf.createPDF(getNextWeek(), nextWeek),
                           getNextWeek()[0])
                       .then((_) {
@@ -262,8 +263,8 @@ class _TabsScreenState extends State<TabsScreen>
                 },
                 child: FloatingActionButton(
                   heroTag: "btn2",
-                  onPressed: () {
-                    pdf
+                  onPressed: () async {
+                    await pdf
                         .savePdf(pdf.createPDF(getCurrentWeek(), thisWeek),
                             getCurrentWeek()[0])
                         .then((_) {
