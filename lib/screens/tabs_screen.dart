@@ -8,7 +8,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:time_machine/time_machine.dart';
 import 'package:timetable/timetable.dart';
-import 'package:work_schedule/models/shift.dart';
+// import 'package:url_launcher/url_launcher.dart';
+import '../models/shift.dart';
 import '../providers/departments.dart';
 import '../providers/settings.dart';
 import '../widgets/main_drawer.dart';
@@ -156,6 +157,22 @@ class _TabsScreenState extends State<TabsScreen>
         });
   }
 
+  // Future<void> _openFileExplorer() async {
+  //   final path = await ExtStorage.getExternalStoragePublicDirectory(
+  //       ExtStorage.DIRECTORY_DOCUMENTS);
+  //   final url = 'content://$path/work_schedule';
+  //   final x = 'https://www.francescobarranca.dev';
+  //   if (await canLaunch(url)) {
+  //     try {
+  //       await launch(url);
+  //     } catch (e) {
+  //       print(e.toString());
+  //     }
+  //   } else {
+  //     print('Could not launch $url');
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -257,9 +274,20 @@ class _TabsScreenState extends State<TabsScreen>
                       flushbarPosition: FlushbarPosition.TOP,
                       isDismissible: true,
                       duration: Duration(seconds: 3),
+                      icon: Icon(Icons.insert_drive_file),
+                      // onTap: (_) async => await _openFileExplorer(),
                     ).show(context);
-                  }).catchError(
-                          (error) => print("Pdf Error: " + error.toString()));
+                  }).catchError((error) {
+                    print("Pdf Error: " + error.toString());
+                    Flushbar(
+                      message: "Could not create PDF...",
+                      flushbarPosition: FlushbarPosition.TOP,
+                      isDismissible: true,
+                      duration: Duration(seconds: 3),
+                      backgroundColor: Colors.red,
+                      icon: Icon(Icons.close),
+                    ).show(context);
+                  });
                 },
                 child: FloatingActionButton(
                   heroTag: "btn2",
@@ -274,9 +302,20 @@ class _TabsScreenState extends State<TabsScreen>
                         flushbarPosition: FlushbarPosition.TOP,
                         isDismissible: true,
                         duration: Duration(seconds: 3),
+                        icon: Icon(Icons.insert_drive_file),
+                        // onTap: (_) async => await _openFileExplorer(),
                       ).show(context);
-                    }).catchError(
-                            (error) => print("Pdf Error: " + error.toString()));
+                    }).catchError((error) {
+                      print("Pdf Error: " + error.toString());
+                      Flushbar(
+                        message: "Could not create PDF...",
+                        flushbarPosition: FlushbarPosition.TOP,
+                        isDismissible: true,
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 3),
+                        icon: Icon(Icons.close),
+                      ).show(context);
+                    });
                   },
                   child: Icon(
                     Icons.picture_as_pdf,
