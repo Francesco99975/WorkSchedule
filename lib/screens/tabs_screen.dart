@@ -263,8 +263,8 @@ class _TabsScreenState extends State<TabsScreen>
                 height: 20,
               ),
               GestureDetector(
-                onLongPress: () async {
-                  await pdf
+                onLongPress: () {
+                  pdf
                       .savePdf(pdf.createPDF(getNextWeek(), nextWeek),
                           getNextWeek()[0])
                       .then((_) {
@@ -291,8 +291,8 @@ class _TabsScreenState extends State<TabsScreen>
                 },
                 child: FloatingActionButton(
                   heroTag: "btn2",
-                  onPressed: () async {
-                    await pdf
+                  onPressed: () {
+                    pdf
                         .savePdf(pdf.createPDF(getCurrentWeek(), thisWeek),
                             getCurrentWeek()[0])
                         .then((_) {

@@ -141,17 +141,21 @@ class PDFBuilder {
   }
 
   Future<void> savePdf(pw.Document pdf, DateTime startWeek) async {
-    if (await Permission.storage.request().isGranted) {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      status = await Permission.storage.request();
+    }
+    if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+    if (status.isGranted) {
       Directory appDocDir = Directory(
           await ExtStorage.getExternalStoragePublicDirectory(
               ExtStorage.DIRECTORY_DOCUMENTS));
-      var dirExists = await appDocDir.exists();
-      if (Platform.isAndroid && dirExists) {
+      if (Platform.isAndroid) {
         Directory appStorage = Directory(appDocDir.path + "/work_schedule");
-        var storeExists = await appStorage.exists();
-        if (!storeExists) {
-          await appStorage.create();
-        }
+        final res = await appStorage.create(recursive: true);
+        print("Res: $res");
 
         String appDocPath = appStorage.path;
 
